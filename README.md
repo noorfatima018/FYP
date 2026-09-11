@@ -1,14 +1,14 @@
-# 🛡️ TrustRent — Trust & Risk Management Platform for Peer-to-Peer Asset Sharing
+# 🛡️ RentWise — Trust & Risk Management Platform for Peer-to-Peer Asset Sharing
 
 > **"Don't just match renters and owners — protect both of them."**
 
 ---
 
-## 📌 What is TrustRent?
+## 📌 What is RentWise?
 
-TrustRent is a **peer-to-peer rental platform with a built-in trust and risk engine**. It allows individuals to lend and borrow physical assets (cameras, laptops, appliances, vehicles, etc.) while intelligently assessing the risk of every transaction *before* it happens.
+RentWise is a **peer-to-peer rental platform with a built-in trust and risk engine**. It allows individuals to lend and borrow physical assets (cameras, laptops, appliances, vehicles, etc.) while intelligently assessing the risk of every transaction *before* it happens.
 
-Unlike typical rental apps that simply connect buyers and sellers, TrustRent acts as a **digital trust layer** — evaluating users, calculating dynamic risk scores, generating digital contracts, and maintaining evidence trails that can be used in dispute resolution.
+Unlike typical rental apps that simply connect buyers and sellers, RentWise acts as a **digital trust layer** — evaluating users, calculating dynamic risk scores, generating digital contracts, and maintaining evidence trails that can be used in dispute resolution.
 
 ---
 
@@ -18,7 +18,7 @@ Most P2P rental platforms ask one question:
 
 > *"Is this item available?"*
 
-TrustRent asks a better question:
+RentWise asks a better question:
 
 > *"Should this rental happen at all — and if so, under what safeguards?"*
 
@@ -66,28 +66,33 @@ Each transaction produces:
 ## 🏗️ System Architecture
 
 ```
-┌──────────────────────────────────────────────┐
-│                 TrustRent Platform           │
-├──────────────┬───────────────┬───────────────┤
-│  Mobile App  │   Web Portal  │  Admin Panel  │
-│  (React Native or Flutter)   │  (React.js)   │
-├──────────────┴───────────────┴───────────────┤
-│              REST / GraphQL API              │
-│               (Node.js / Django)             │
-├──────────────────────────────────────────────┤
-│         Risk & Trust Engine (Python)         │
-│    - Scoring Model                           │
-│    - Dynamic Deposit Calculator              │
-│    - Behavioral Pattern Detection            │
-├──────────────────────────────────────────────┤
-│         Database Layer (PostgreSQL)          │
-│    - Users, Items, Transactions              │
-│    - Evidence (images/video metadata)        │
-│    - Contracts, Disputes, Audit Logs         │
-├──────────────────────────────────────────────┤
-│       Storage (Firebase / S3 / Cloudinary)   │
-│    - Item photos, condition evidence         │
-└──────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────┐
+│                    RentWise Platform                  │
+├────────────────────────┬───────────────────────────────┤
+│   Flutter Mobile App   │     Next.js Web App           │
+│   (iOS + Android)      │   (Portal + Admin Panel)      │
+├────────────────────────┴───────────────────────────────┤
+│                   Supabase Client SDK                  │
+│       supabase_flutter  ·  @supabase/supabase-js       │
+├────────────────────────────────────────────────────────┤
+│                      SUPABASE                          │
+│  ┌──────────────┬──────────────┬──────────────────┐   │
+│  │  Auth        │  Database    │  Storage         │   │
+│  │  (Email OTP, │  (PostgreSQL │  (Item photos,   │   │
+│  │  Phone OTP,  │   + RLS)     │   Evidence       │   │
+│  │  OAuth)      │              │   media)         │   │
+│  ├──────────────┴──────────────┴──────────────────┤   │
+│  │  Edge Functions (Deno/TypeScript)               │   │
+│  │  - Risk Scoring Engine                         │   │
+│  │  - Trust Score Service                         │   │
+│  │  - Dynamic Deposit Calculator                  │   │
+│  │  - Contract Generator                          │   │
+│  │  - Return Monitoring Cron                      │   │
+│  ├─────────────────────────────────────────────────┤   │
+│  │  Realtime (WebSocket subscriptions)            │   │
+│  │  - Notifications, rental status updates        │   │
+│  └─────────────────────────────────────────────────┘   │
+└────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -96,8 +101,8 @@ Each transaction produces:
 
 ### 1. 🪪 Identity Verification
 Before renting high-value items, users must complete:
-- Email & phone number verification
-- CNIC (National ID) upload and validation
+- Email & phone number verification (handled by **Supabase Auth**)
+- CNIC (National ID) upload → stored in **Supabase Storage**, hash in database
 - Optional: Selfie / liveness check
 
 ### 2. 💰 Dynamic Deposit System
@@ -107,6 +112,7 @@ Camera value = Rs. 100,000
 Low-risk renter  → Deposit: Rs. 20,000
 High-risk renter → Deposit: Rs. 50,000
 ```
+Calculated by a **Supabase Edge Function** and stored in the database.
 
 ### 3. 📄 Digital Rental Contract
 Both parties digitally agree to:
@@ -117,32 +123,35 @@ Both parties digitally agree to:
 - Damage policy
 - Loss/theft procedure
 
+Generated and stored as a JSON record by a **Supabase Edge Function**.
+
 ### 4. 📸 Item Condition Evidence
-- Owner uploads **before-handover** photos/videos
-- Renter uploads **receipt confirmation**
+- Owner uploads **before-handover** photos/videos → **Supabase Storage**
+- Renter uploads receipt confirmation
 - On return, both parties upload **return condition** media
 - Optional: Computer vision comparison of before vs. after images
 
 ### 5. ⏱️ Return Monitoring & Alerts
-The system tracks each rental's lifecycle:
+The system tracks each rental's lifecycle via a **Supabase scheduled Edge Function (pg_cron)**:
 ```
 Rental Started → Due Date Reminder (24h) → Overdue Alert → Escalation
 ```
-Automatic push notifications and email alerts are sent at each stage.
 
 ### 6. ⚖️ Dispute Resolution System
 When a conflict arises, the platform surfaces:
-- Full transaction timeline with timestamps
-- Uploaded evidence (before/after photos)
-- Digital contract terms agreed upon
+- Full transaction timeline with timestamps (from database audit log)
+- Uploaded evidence (before/after from Supabase Storage)
+- Digital contract terms
 - In-app communication logs
 - Risk score at time of transaction
+
+All protected by **Row Level Security (RLS)** — users only see their own data.
 
 ---
 
 ## 🔄 Trust Score Lifecycle
 
-A user's trust score is a **living value** that evolves with behavior:
+A user's trust score is a **living value** that evolves with behavior, updated by Supabase Edge Functions triggered on each event:
 
 ```
 New User Registered
@@ -181,15 +190,36 @@ Repeated Violations         → Account Restrictions
 
 | Layer | Technology |
 |---|---|
-| Mobile App | React Native / Flutter |
-| Web Frontend | React.js |
-| Backend API | Node.js (Express) or Django (Python) |
-| Risk Engine | Python (scikit-learn / rule-based scoring) |
-| Database | PostgreSQL |
-| Media Storage | Firebase Storage / Cloudinary |
-| Notifications | Firebase Cloud Messaging (FCM) |
-| Auth | JWT + OAuth2 |
-| Optional CV | Python + OpenCV / TensorFlow Lite |
+| **Mobile App** | Flutter (Dart) — iOS & Android |
+| **Web App** | Next.js 14 (TypeScript, App Router) |
+| **Database** | Supabase (PostgreSQL) with Row Level Security |
+| **Auth** | Supabase Auth (Email OTP, Phone OTP, OAuth) |
+| **Backend Logic** | Supabase Edge Functions (Deno / TypeScript) |
+| **File Storage** | Supabase Storage (item photos, CNIC, evidence) |
+| **Realtime** | Supabase Realtime (WebSocket subscriptions) |
+| **Scheduled Jobs** | Supabase `pg_cron` + Edge Functions |
+| **Push Notifications** | Firebase Cloud Messaging (FCM) — mobile |
+| **Email** | Supabase built-in SMTP + custom templates |
+| **Optional CV** | Python FastAPI microservice (OpenCV / TensorFlow) |
+
+### Flutter Key Packages
+| Package | Purpose |
+|---|---|
+| `supabase_flutter` | Supabase client (auth, DB, storage, realtime) |
+| `go_router` | Navigation & deep linking |
+| `flutter_riverpod` | State management |
+| `firebase_messaging` | FCM push notifications |
+| `image_picker` | Camera & gallery access |
+| `cached_network_image` | Image caching from Supabase Storage |
+
+### Next.js Key Packages
+| Package | Purpose |
+|---|---|
+| `@supabase/supabase-js` | Supabase client |
+| `@supabase/ssr` | Server-side Supabase client for Next.js |
+| `next-auth` or Supabase Auth UI | Session management |
+| `react-hook-form` + `zod` | Forms + validation |
+| `recharts` | Admin dashboard charts |
 
 ---
 
@@ -199,15 +229,15 @@ Repeated Violations         → Account Restrictions
 
 | Criteria | Assessment |
 |---|---|
-| **Technical depth** | ✅ Risk modeling, dynamic scoring, CV integration, real-time monitoring |
+| **Technical depth** | ✅ Risk modeling, RLS security, Edge Functions, Realtime |
 | **Real-world relevance** | ✅ Solves an actual problem in the Pakistani market |
-| **Multi-disciplinary** | ✅ Mobile + Web + Backend + Database + AI/ML components |
+| **Multi-disciplinary** | ✅ Mobile + Web + Supabase backend + AI/ML components |
 | **Originality** | ✅ Not just another rental app — a risk & trust *engine* |
-| **Scope** | ✅ Large enough to be serious, scoped enough to be achievable |
-| **Demonstration value** | ✅ Highly demonstrable to evaluators and investors |
-| **Scalability path** | ✅ Can expand to insurance integrations, payment gateways, etc. |
+| **Scope** | ✅ Large enough to be serious, achievable with Supabase |
+| **Demonstration value** | ✅ Highly demonstrable — live data, realtime updates |
+| **Scalability path** | ✅ Supabase scales to production without infrastructure changes |
 
-> 💡 The key differentiator: You're not building a marketplace. You're building a **risk and trust infrastructure layer** that a marketplace sits on top of. That framing alone elevates this from a semester project to a fundable product concept.
+> 💡 Using Supabase eliminates the need to build and maintain a separate backend server, letting you focus your FYP effort on the intelligent parts: the risk engine, trust scoring, and protection system — all living as typed TypeScript Edge Functions.
 
 ---
 
@@ -216,23 +246,38 @@ Repeated Violations         → Account Restrictions
 - The platform **cannot recover stolen physical items**. It reduces risk and provides evidence — not guarantees.
 - The platform **does not automatically charge bank accounts or declare users criminals** — those involve payment provider agreements and legal frameworks beyond the project's scope.
 - Computer vision for damage detection is **optional and aspirational** — treat it as a bonus feature if time permits.
+- Supabase Edge Functions run on **Deno** (not Node.js) — TypeScript is fully supported but some Node.js-only packages may not work; use Deno-compatible alternatives.
 
 ---
 
 ## 📁 Repository Structure
 
 ```
-trustrent/
-├── mobile/          # React Native / Flutter app
-├── web/             # React.js web portal
-├── backend/         # API server (Node.js or Django)
-│   ├── risk/        # Risk engine & scoring models
-│   ├── contracts/   # Digital contract generation
-│   ├── disputes/    # Dispute resolution logic
-│   └── evidence/    # Media upload & management
-├── database/        # Schema, migrations, seed data
-├── docs/            # FYP documentation
-└── README.md
+RentWise/
+├── mobile/                  ← Flutter app
+│   ├── lib/
+│   │   ├── core/            ← Theme, constants, Supabase client
+│   │   └── features/        ← auth, items, rentals, risk, disputes
+│   └── pubspec.yaml
+├── web/                     ← Next.js web app + admin panel
+│   ├── app/
+│   │   ├── (auth)/          ← Login, register, verify
+│   │   ├── (main)/          ← Dashboard, items, rentals, disputes
+│   │   └── admin/           ← Admin panel routes
+│   ├── components/
+│   ├── lib/
+│   │   └── supabase/        ← Supabase client (browser + server)
+│   └── types/
+├── supabase/                ← Supabase project config
+│   ├── functions/           ← Edge Functions (Deno/TypeScript)
+│   │   ├── risk-score/      ← Transaction risk scoring
+│   │   ├── trust-event/     ← Trust score update handler
+│   │   ├── deposit-calc/    ← Dynamic deposit calculator
+│   │   ├── contract-gen/    ← Contract generation
+│   │   └── return-monitor/  ← Scheduled return monitoring
+│   ├── migrations/          ← SQL migration files
+│   └── seed.sql             ← Demo seed data
+└── docs/                    ← Architecture, FYP report assets
 ```
 
 ---
