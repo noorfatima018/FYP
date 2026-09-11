@@ -1,7 +1,9 @@
-# 📋 TrustRent — Project Issues & Milestones
-### Stack: Flutter (Mobile) · Next.js (Web) · Node.js/Express (Backend) · PostgreSQL
+# 📋 RentWise — Project Issues & Milestones
+### Stack: Flutter (Mobile) · Next.js (Web) · Supabase (Database + Auth + Storage + Edge Functions)
 
-This file tracks all project milestones and their associated tasks. Each milestone is a major development phase of the TrustRent platform.
+This file tracks all project milestones and their associated tasks. Each milestone is a major development phase of the RentWise platform.
+
+> **Supabase replaces**: PostgreSQL server, REST API server (Node.js/Express), Firebase Auth, Firebase Storage, and WebSocket server — all in one managed platform.
 
 ---
 
@@ -11,17 +13,17 @@ This file tracks all project milestones and their associated tasks. Each milesto
 |---|---|---|---|
 | M1 | Project Setup & Architecture | All | 🔲 Planned |
 | M2 | Design System & Shared UI | Flutter + Next.js | 🔲 Planned |
-| M3 | User Authentication & Identity Verification | Flutter + Next.js + Backend | 🔲 Planned |
-| M4 | Item Listing & Management | Flutter + Next.js + Backend | 🔲 Planned |
-| M5 | Trust Score & Risk Engine | Backend | 🔲 Planned |
-| M6 | Dynamic Deposit System | Backend + Flutter + Next.js | 🔲 Planned |
-| M7 | Digital Rental Contract | Backend + Flutter + Next.js | 🔲 Planned |
-| M8 | Item Condition Evidence System | Flutter + Next.js + Backend | 🔲 Planned |
-| M9 | Rental Lifecycle & Return Monitoring | Backend + Flutter + Next.js | 🔲 Planned |
-| M10 | Dispute Resolution System | Backend + Flutter + Next.js | 🔲 Planned |
-| M11 | Notifications & Alerts | Flutter + Backend + Next.js | 🔲 Planned |
+| M3 | Supabase Auth & Identity Verification | Flutter + Next.js + Supabase | 🔲 Planned |
+| M4 | Item Listing & Management | Flutter + Next.js + Supabase | 🔲 Planned |
+| M5 | Trust Score & Risk Engine | Supabase Edge Functions | 🔲 Planned |
+| M6 | Dynamic Deposit System | Supabase Edge Functions + Flutter + Next.js | 🔲 Planned |
+| M7 | Digital Rental Contract | Supabase Edge Functions + Flutter + Next.js | 🔲 Planned |
+| M8 | Item Condition Evidence System | Supabase Storage + Flutter + Next.js | 🔲 Planned |
+| M9 | Rental Lifecycle & Return Monitoring | Supabase pg_cron + Flutter + Next.js | 🔲 Planned |
+| M10 | Dispute Resolution System | Supabase + Flutter + Next.js | 🔲 Planned |
+| M11 | Realtime Notifications & Alerts | Supabase Realtime + FCM + Flutter + Next.js | 🔲 Planned |
 | M12 | Admin Panel | Next.js (Web only) | 🔲 Planned |
-| M13 | (Optional) Computer Vision | Backend | 🔲 Planned |
+| M13 | (Optional) Computer Vision | Python FastAPI microservice | 🔲 Planned |
 | M14 | Testing, QA & Documentation | All | 🔲 Planned |
 
 ---
@@ -30,7 +32,7 @@ This file tracks all project milestones and their associated tasks. Each milesto
 
 ## 🏁 Milestone 1 — Project Setup & Architecture
 
-> **Goal**: Establish the complete technical foundation — monorepo, database schema, backend scaffold, and baseline project structure for Flutter and Next.js.
+> **Goal**: Establish the complete technical foundation — monorepo structure, Supabase project initialization, database schema, Flutter app scaffold, and Next.js app scaffold.
 
 ---
 
@@ -39,192 +41,219 @@ This file tracks all project milestones and their associated tasks. Each milesto
 **Platform**: All  
 **Labels**: `setup`
 
-**Description**:  
-Create the unified repository with clear folder separation between all three platforms.
-
+**Folder Structure**:
 ```
-trustrent/
-├── mobile/          ← Flutter app
-├── web/             ← Next.js web app
-├── backend/         ← Node.js (Express) API
-│   ├── src/
-│   │   ├── routes/
-│   │   ├── controllers/
-│   │   ├── services/
-│   │   │   ├── risk/
-│   │   │   ├── trust/
-│   │   │   ├── contracts/
-│   │   │   └── evidence/
-│   │   ├── middleware/
-│   │   └── models/
-├── database/        ← Migrations & seed scripts
-└── docs/            ← Architecture, FYP report assets
+RentWise/
+├── mobile/                  ← Flutter app
+│   ├── lib/
+│   │   ├── core/            ← Theme, constants, Supabase client
+│   │   └── features/        ← auth, items, rentals, risk, disputes
+│   └── pubspec.yaml
+├── web/                     ← Next.js web app + admin panel
+│   ├── app/
+│   │   ├── (auth)/
+│   │   ├── (main)/
+│   │   └── admin/
+│   ├── components/
+│   ├── lib/supabase/        ← Browser + server Supabase clients
+│   └── types/
+├── supabase/                ← Supabase project config (committed to Git)
+│   ├── functions/           ← Edge Functions (Deno/TypeScript)
+│   │   ├── risk-score/
+│   │   ├── trust-event/
+│   │   ├── deposit-calc/
+│   │   ├── contract-gen/
+│   │   └── return-monitor/
+│   ├── migrations/          ← SQL migration files (versioned)
+│   └── seed.sql
+└── docs/
 ```
 
 **Tasks**:
 - [ ] Create GitHub repository with `main` and `develop` branches
-- [ ] Set up `.gitignore` for Flutter, Next.js, and Node.js
+- [ ] Set up `.gitignore` for Flutter, Next.js, Supabase CLI, and Deno
 - [ ] Add `README.md`, `ISSUES.md`, `CONTRIBUTING.md`
 - [ ] Configure branch protection rules (PRs required for `main`)
-- [ ] Add monorepo `package.json` at root for shared scripts
+- [ ] Install Supabase CLI globally (`npm install -g supabase`)
 
 ---
 
-### Issue #2 — Database Schema Design
+### Issue #2 — Supabase Project Initialization
 
-**Platform**: Backend  
-**Labels**: `database` `architecture`
+**Platform**: Supabase  
+**Labels**: `supabase` `setup`
 
 **Description**:  
-Design the complete relational schema for PostgreSQL.
+Create and configure the Supabase project. This is the backbone of the entire platform — it provides the database, auth, storage, edge functions, and realtime in one place.
+
+**Tasks**:
+- [ ] Create project at [supabase.com](https://supabase.com) — note Project URL and `anon` + `service_role` keys
+- [ ] Run `supabase init` in repo root to scaffold local config
+- [ ] Run `supabase link --project-ref <project-id>` to link local to remote
+- [ ] Store keys in `.env.local` (web) and `--dart-define` / `.env` (mobile) — **never commit keys**
+- [ ] Add `.env.example` with placeholder key names
+- [ ] Enable the following Supabase extensions in dashboard:
+  - `pg_cron` — scheduled jobs (return monitoring)
+  - `uuid-ossp` — UUID generation for all primary keys
+  - `pgcrypto` — CNIC hash storage
+
+---
+
+### Issue #3 — Database Schema & Migrations
+
+**Platform**: Supabase (PostgreSQL)  
+**Labels**: `supabase` `database`
+
+**Description**:  
+Write all SQL migrations to create the complete database schema. Migrations live in `supabase/migrations/` and are version-controlled.
 
 **Core Tables**:
 
 | Table | Key Fields |
 |---|---|
-| `users` | id, name, email, phone, cnic_hash, trust_score, verification_status, created_at |
-| `items` | id, owner_id, title, category, value_pkr, risk_tier, daily_rate_pkr, is_available |
-| `rental_requests` | id, item_id, renter_id, start_date, end_date, status, risk_score, deposit_required_pkr |
-| `rentals` | id, request_id, contract_id, status, actual_return_date |
+| `users` (extends auth.users) | id, name, phone, cnic_hash, trust_score, verification_status, created_at |
+| `items` | id, owner_id, title, category, value_pkr, risk_tier, daily_rate_pkr, is_available, photos_urls |
+| `rental_requests` | id, item_id, renter_id, start_date, end_date, status, risk_score, deposit_required_pkr, risk_json |
+| `rentals` | id, request_id, contract_id, status, deposit_status, actual_return_date |
 | `contracts` | id, rental_id, terms_json, owner_signed_at, renter_signed_at |
-| `evidence` | id, rental_id, type (pre/post), uploaded_by, file_url, timestamp |
-| `disputes` | id, rental_id, raised_by, type, status, resolution, resolution_notes |
+| `evidence` | id, rental_id, type (pre/post), uploaded_by, storage_path, timestamp |
+| `disputes` | id, rental_id, raised_by, dispute_type, status, resolution, resolution_notes |
 | `trust_events` | id, user_id, event_type, delta, new_score, triggered_by_rental_id, timestamp |
-| `notifications` | id, user_id, title, body, type, read, created_at |
+| `notifications` | id, user_id, title, body, type, read, metadata_json, created_at |
 | `reviews` | id, rental_id, reviewer_id, reviewee_id, rating, comment |
+| `rental_events` | id, rental_id, from_status, to_status, triggered_by, timestamp |
 
 **Tasks**:
-- [ ] Draw ER diagram (dbdiagram.io)
-- [ ] Write SQL migration files in `database/migrations/`
-- [ ] Write seed script with realistic test data
-- [ ] Document schema in `docs/database-schema.md`
+- [ ] Write migration `001_initial_schema.sql` with all tables
+- [ ] Write migration `002_rls_policies.sql` with Row Level Security policies for every table
+- [ ] Write migration `003_indexes.sql` for performance (foreign keys, search fields)
+- [ ] Write migration `004_pg_cron_jobs.sql` for scheduled return monitoring
+- [ ] Run `supabase db push` to apply migrations
+- [ ] Draw ER diagram and save to `docs/database-schema.md`
 
 ---
 
-### Issue #3 — Backend API Scaffolding (Node.js + Express)
+### Issue #4 — Row Level Security (RLS) Policies
 
-**Platform**: Backend  
-**Labels**: `backend` `setup`
+**Platform**: Supabase  
+**Labels**: `supabase` `security`
 
 **Description**:  
-Bootstrap the Express API server with all middleware, routing, and configuration.
+RLS is Supabase's primary security layer. Every table must have policies defined so users can only access their own data. This is critical — without it, any authenticated user can read all data.
+
+**Key RLS Rules**:
+| Table | Read | Write |
+|---|---|---|
+| `users` | Own row only (private fields) · public fields visible to all authenticated users | Own row only |
+| `items` | All authenticated users | Owner only |
+| `rental_requests` | Renter or item owner | Renter (insert) · owner (approve/reject) |
+| `rentals` | Renter or owner of item | Edge Functions via `service_role` only |
+| `contracts` | Renter or owner | Edge Functions via `service_role` only |
+| `evidence` | Renter or owner | Renter or owner |
+| `disputes` | Parties involved · admins | Parties involved (insert) · admins (resolve) |
+| `trust_events` | Own rows only | Edge Functions via `service_role` only |
+| `notifications` | Own rows only | Edge Functions via `service_role` only |
+| `reviews` | All authenticated | Reviewer (insert once per rental) |
 
 **Tasks**:
-- [ ] Initialize Node.js project with TypeScript (`ts-node`, `express`, `prisma` or `pg`)
-- [ ] Set up `.env` config (DB URL, JWT secret, cloud storage keys)
-- [ ] Configure middleware: CORS, body-parser, helmet, rate-limiter
-- [ ] Connect to PostgreSQL (use Prisma ORM or `pg` directly)
-- [ ] Create `GET /api/health` endpoint
-- [ ] Set up structured error handling and logging (winston)
-- [ ] Set up Swagger/OpenAPI docs scaffold at `/api/docs`
+- [ ] Enable RLS on every table (`ALTER TABLE x ENABLE ROW LEVEL SECURITY`)
+- [ ] Write `SELECT`, `INSERT`, `UPDATE`, `DELETE` policies per table
+- [ ] Create `admin` role using Supabase custom claims (JWT metadata)
+- [ ] Admin policies: full access to all tables
+- [ ] Test all policies using Supabase dashboard Policy Editor and test accounts
+- [ ] Document all policies in `docs/rls-policies.md`
 
 ---
 
-### Issue #4 — Flutter App Initialization
+### Issue #5 — Flutter App Initialization
 
-**Platform**: Flutter (Mobile)  
+**Platform**: Flutter  
 **Labels**: `flutter` `setup`
-
-**Description**:  
-Set up the Flutter project with all dependencies, folder structure, and state management.
 
 **Flutter Packages**:
 | Package | Purpose |
 |---|---|
-| `flutter_riverpod` or `bloc` | State management |
-| `dio` | HTTP client |
-| `go_router` | Navigation/routing |
-| `shared_preferences` | Local storage (tokens) |
-| `flutter_secure_storage` | Secure token storage |
-| `image_picker` | Camera/gallery access |
-| `firebase_messaging` | Push notifications |
-| `flutter_local_notifications` | Local notification display |
-| `cached_network_image` | Image caching |
+| `supabase_flutter` | Supabase client (auth, DB queries, storage, realtime) |
+| `go_router` | Navigation & deep linking |
+| `flutter_riverpod` | State management |
+| `firebase_messaging` | FCM push notifications (Supabase doesn't do push natively) |
+| `flutter_local_notifications` | Show local notification banners |
+| `image_picker` | Camera & gallery access for evidence upload |
+| `cached_network_image` | Cache images from Supabase Storage |
+| `flutter_image_compress` | Compress images before upload |
 | `intl` | Date/number formatting |
+| `flutter_secure_storage` | Store Supabase session tokens securely |
 
 **Folder Structure**:
 ```
 mobile/lib/
 ├── core/
-│   ├── constants/
-│   ├── theme/
+│   ├── constants/         ← Supabase URL, anon key, route names
+│   ├── theme/             ← AppColors, AppTypography, AppTheme
 │   ├── utils/
-│   └── network/      ← Dio client + interceptors
+│   └── supabase/          ← Supabase client singleton + helpers
 ├── features/
-│   ├── auth/
-│   ├── items/
-│   ├── rentals/
-│   ├── risk/
-│   ├── contracts/
-│   ├── evidence/
-│   ├── disputes/
-│   └── profile/
+│   ├── auth/              ← Login, register, OTP, CNIC
+│   ├── items/             ← Browse, detail, my listings
+│   ├── rentals/           ← Request, manage, timeline
+│   ├── risk/              ← Risk score display, gates
+│   ├── contracts/         ← Review, sign, view
+│   ├── evidence/          ← Upload, gallery, compare
+│   ├── disputes/          ← File, view, resolve
+│   ├── notifications/     ← Notification center
+│   └── profile/           ← Trust score, history, settings
 └── main.dart
 ```
 
 **Tasks**:
-- [ ] Initialize Flutter project with null safety
-- [ ] Install all required packages (`pubspec.yaml`)
-- [ ] Set up folder structure (feature-first architecture)
-- [ ] Configure Dio with base URL and JWT interceptor
-- [ ] Set up `go_router` with named routes for all screens
-- [ ] Set up `Riverpod` providers (or Bloc cubits) scaffold
-- [ ] Configure app theme (colors, fonts, spacing)
-- [ ] Test run on Android emulator and iOS simulator
+- [ ] Initialize Flutter project with null safety enabled
+- [ ] Add all packages to `pubspec.yaml`
+- [ ] Initialize Supabase in `main.dart`:
+  ```dart
+  await Supabase.initialize(url: Env.supabaseUrl, anonKey: Env.supabaseAnonKey);
+  ```
+- [ ] Set up `go_router` with all named routes
+- [ ] Set up Riverpod `ProviderScope` at root
+- [ ] Configure app theme and typography
+- [ ] Test on Android emulator + iOS simulator
 
 ---
 
-### Issue #5 — Next.js Web App Initialization
+### Issue #6 — Next.js App Initialization
 
-**Platform**: Next.js (Web)  
+**Platform**: Next.js  
 **Labels**: `nextjs` `setup`
-
-**Description**:  
-Set up the Next.js project with TypeScript, routing, state management, and API client.
 
 **Packages**:
 | Package | Purpose |
 |---|---|
-| `next` + `typescript` | Framework |
-| `tailwindcss` or CSS Modules | Styling |
-| `zustand` or `react-query` + `axios` | State + data fetching |
-| `next-auth` | Authentication session management |
+| `@supabase/supabase-js` | Supabase browser client |
+| `@supabase/ssr` | Server-side Supabase client for Next.js middleware + SSR |
 | `react-hook-form` + `zod` | Forms + validation |
-| `react-hot-toast` | Notifications |
-| `lucide-react` | Icons |
+| `zustand` | Client state management |
+| `@tanstack/react-query` | Server state / data fetching |
 | `recharts` | Charts (admin dashboard) |
+| `react-hot-toast` | Toast notifications |
+| `lucide-react` | Icons |
+| `next` + `typescript` | Framework |
 
-**Folder Structure**:
+**Supabase Client Setup**:
 ```
-web/
-├── app/                  ← Next.js App Router
-│   ├── (auth)/           ← Login, Register, Verify
-│   ├── (main)/
-│   │   ├── dashboard/
-│   │   ├── items/
-│   │   ├── rentals/
-│   │   ├── profile/
-│   │   └── disputes/
-│   └── admin/            ← Admin panel routes
-├── components/
-│   ├── ui/               ← Button, Input, Card, Badge
-│   ├── risk/             ← RiskScoreCard, RiskBadge
-│   ├── rentals/          ← RentalTimeline, ContractViewer
-│   └── evidence/         ← EvidenceUploader, ImageCompare
-├── lib/
-│   ├── api.ts            ← Axios instance with interceptors
-│   └── hooks/            ← Custom React hooks
-└── types/                ← TypeScript interfaces
+web/lib/supabase/
+├── client.ts        ← Browser client (for Client Components)
+├── server.ts        ← Server client (for Server Components + Actions)
+└── middleware.ts    ← Session refresh middleware
 ```
 
 **Tasks**:
 - [ ] Initialize Next.js with TypeScript and App Router
-- [ ] Install and configure all packages
-- [ ] Set up Axios client with JWT auth interceptor
-- [ ] Set up `next-auth` session provider
+- [ ] Install all packages
+- [ ] Create browser + server Supabase clients in `lib/supabase/`
+- [ ] Set up `middleware.ts` to refresh Supabase session on every request
+- [ ] Set up route groups: `(auth)/`, `(main)/`, `admin/`
 - [ ] Configure global CSS / Tailwind design tokens
-- [ ] Set up route groups for `(auth)`, `(main)`, and `admin`
-- [ ] Test development server
+- [ ] Create root layout with providers (QueryClient, Toaster)
+- [ ] Test dev server
 
 ---
 
@@ -232,148 +261,154 @@ web/
 
 ## 🎨 Milestone 2 — Design System & Shared UI
 
-> **Goal**: Build the visual design system for both Flutter and Next.js before building features, so all UI is consistent.
+> **Goal**: Build a consistent visual design system for both Flutter and Next.js before any feature screens.
 
 ---
 
-### Issue #6 — Flutter Design System
+### Issue #7 — Flutter Design System
 
 **Platform**: Flutter  
 **Labels**: `flutter` `design`
 
-**Description**:  
-Define the complete visual design system used throughout the Flutter app.
-
 **Design Tokens**:
 ```dart
-// Colors
-primaryColor: Color(0xFF1A73E8)       // Trust blue
-dangerColor: Color(0xFFE53935)        // High risk red
-warningColor: Color(0xFFFB8C00)       // Medium risk orange
-successColor: Color(0xFF43A047)       // Low risk green
-backgroundDark: Color(0xFF0F172A)     // Dark surface
-surfaceColor: Color(0xFF1E293B)       // Card surface
+primaryColor:    Color(0xFF1A73E8)   // Trust blue
+dangerColor:     Color(0xFFE53935)   // High risk red
+warningColor:    Color(0xFFFB8C00)   // Medium risk orange
+successColor:    Color(0xFF43A047)   // Low risk green
+backgroundDark:  Color(0xFF0F172A)   // Dark background
+surfaceColor:    Color(0xFF1E293B)   // Card surfaces
 ```
 
-**Tasks**:
-- [ ] Define `AppColors`, `AppTypography`, `AppSpacing` in `core/theme/`
-- [ ] Create `AppTheme` with `ThemeData` (light + dark)
-- [ ] Build reusable widgets:
-  - `AppButton` (primary, secondary, danger variants)
-  - `AppTextField` (with validation states)
-  - `AppCard` (standard card container)
-  - `RiskBadge` (green/orange/red pill)
-  - `TrustScoreGauge` (animated circular indicator)
-  - `VerificationBadge` (email/phone/CNIC status icons)
-  - `StatusChip` (rental status indicator)
-  - `AppBottomNav` (5-tab navigation bar)
-- [ ] Build splash screen and onboarding screens
-- [ ] Document widget library in `docs/flutter-widgets.md`
+**Reusable Widgets to Build**:
+- [ ] `AppButton` — primary, secondary, danger, outlined variants
+- [ ] `AppTextField` — with label, hint, error state
+- [ ] `AppCard` — standard elevated card
+- [ ] `RiskBadge` — `Low` (green) · `Medium` (orange) · `High` (red) pill
+- [ ] `TrustScoreGauge` — animated circular indicator (0–100)
+- [ ] `VerificationBadge` — email ✅ / phone ✅ / CNIC ✅ icon row
+- [ ] `StatusChip` — rental status pill (color-coded)
+- [ ] `AppBottomNav` — 5-tab bottom navigation
+- [ ] `LoadingOverlay` — full-screen loading indicator
+- [ ] `EmptyState` — illustration + message for empty lists
+- [ ] Splash screen with animated logo
 
 ---
 
-### Issue #7 — Next.js Design System
+### Issue #8 — Next.js Design System
 
 **Platform**: Next.js  
 **Labels**: `nextjs` `design`
 
+**Base Components to Build**:
+- [ ] `Button` — primary, secondary, destructive, ghost, outline variants
+- [ ] `Input`, `Textarea`, `Select` — with error + helper states
+- [ ] `Card`, `CardHeader`, `CardContent`, `CardFooter`
+- [ ] `Badge` — status color variants
+- [ ] `RiskScoreCard` — score bar, color-coded label, flags, deposit
+- [ ] `TrustScoreMeter` — animated horizontal bar (0–100)
+- [ ] `VerificationStatus` — icon row (email / phone / CNIC)
+- [ ] `Alert` — info, success, warning, error
+- [ ] `Modal` / `Dialog` — accessible, keyboard-navigable
+- [ ] `Skeleton` — loading placeholders
+- [ ] `DataTable` — paginated, sortable (for admin)
+- [ ] Responsive layout: `Sidebar + TopNav` (desktop) · hamburger (mobile)
+- [ ] Marketing landing page (`/`) with hero, features, CTA
+
+---
+
+---
+
+## 🔐 Milestone 3 — Supabase Auth & Identity Verification
+
+> **Goal**: Full user authentication and multi-step identity verification using Supabase Auth, with profile data stored in the `users` table linked to `auth.users`.
+
+---
+
+### Issue #9 — Supabase Auth Configuration
+
+**Platform**: Supabase  
+**Labels**: `supabase` `auth`
+
 **Description**:  
-Build the shared component library and design system for the web application.
+Configure Supabase Auth to support email OTP, phone OTP, and create the `users` profile table automatically when a new auth user is created.
 
 **Tasks**:
-- [ ] Define CSS variables / Tailwind config for brand colors, typography, spacing
-- [ ] Build base UI components:
-  - `Button` (primary, secondary, destructive, outline variants)
-  - `Input`, `Textarea`, `Select` (with error states)
-  - `Card`, `CardHeader`, `CardBody`
-  - `Badge` (status colors)
-  - `RiskScoreCard` — displays risk %, label, recommended deposit
-  - `TrustScoreMeter` — animated horizontal progress bar
-  - `VerificationStatus` — icon row showing email/phone/CNIC status
-  - `Alert` (info, success, warning, error)
-  - `Modal` / `Dialog`
-  - `Skeleton` loaders
-- [ ] Set up responsive layout: `Sidebar + TopNav` for desktop, hamburger for mobile
-- [ ] Set up `<RootLayout>` with session provider, toast provider
-- [ ] Create landing/marketing page (`/`) for the platform
+- [ ] Enable Email provider with OTP (passwordless) in Supabase Auth settings
+- [ ] Enable Phone provider (SMS via Twilio — connect in Supabase dashboard)
+- [ ] Create `users` table with `id` referencing `auth.users(id)`
+- [ ] Write `on_auth_user_created` database trigger:
+  ```sql
+  CREATE OR REPLACE FUNCTION handle_new_user()
+  RETURNS TRIGGER AS $$
+  BEGIN
+    INSERT INTO public.users (id, email, name)
+    VALUES (NEW.id, NEW.email, NEW.raw_user_meta_data->>'name');
+    RETURN NEW;
+  END;
+  $$ LANGUAGE plpgsql SECURITY DEFINER;
+  ```
+- [ ] Set up custom JWT claims for admin role using Supabase Auth hooks
+- [ ] Configure email templates in Supabase dashboard (OTP, welcome)
+- [ ] Set OTP expiry to 10 minutes, max attempts to 5
 
 ---
 
----
-
-## 🔐 Milestone 3 — User Authentication & Identity Verification
-
-> **Goal**: Users can register, log in, and complete multi-step identity verification on both platforms.
-
----
-
-### Issue #8 — Auth API Endpoints
-
-**Platform**: Backend  
-**Labels**: `auth` `backend`
-
-**Tasks**:
-- [ ] `POST /api/auth/register` — create user, send email OTP
-- [ ] `POST /api/auth/login` — return JWT access + refresh token
-- [ ] `POST /api/auth/logout` — invalidate refresh token
-- [ ] `POST /api/auth/refresh` — issue new access token from refresh
-- [ ] `POST /api/auth/verify-email` — validate email OTP
-- [ ] `POST /api/auth/verify-phone` — validate SMS OTP (Twilio or local SMS)
-- [ ] `POST /api/users/verify-cnic` — accept CNIC image upload, store hash
-- [ ] Implement bcrypt password hashing
-- [ ] Implement JWT middleware for protected routes
-- [ ] Rate-limit OTP endpoints (max 5 attempts)
-
----
-
-### Issue #9 — Flutter Auth Screens
+### Issue #10 — Flutter Auth Screens
 
 **Platform**: Flutter  
 **Labels**: `flutter` `auth`
 
-**Screens to build**:
-- [ ] **Splash Screen** — logo animation → redirect to login or home
-- [ ] **Register Screen** — name, email, phone, password + confirm
-- [ ] **Login Screen** — email/password, "Forgot Password" link
-- [ ] **Email OTP Screen** — 6-digit OTP input with resend timer
-- [ ] **Phone OTP Screen** — SMS OTP input
-- [ ] **Verification Hub Screen** — shows email ✅ / phone ✅ / CNIC ⏳ status
-- [ ] **CNIC Upload Screen** — camera/gallery for front + back photo, upload button
-- [ ] All screens use Riverpod for state, Dio for API calls
-- [ ] Handle loading, error, and success states with proper UX
+**Screens**:
+- [ ] **Splash Screen** — check `supabase.auth.currentSession`, redirect to home or login
+- [ ] **Register Screen** — name, email, phone → calls `supabase.auth.signUp()`
+- [ ] **Login Screen** — email OTP flow → `supabase.auth.signInWithOtp(email:)`
+- [ ] **Email OTP Screen** — 6-digit input → `supabase.auth.verifyOtp(email:, token:, type: email)`
+- [ ] **Phone OTP Screen** — SMS 6-digit input → `supabase.auth.verifyOtp(phone:, token:, type: sms)`
+- [ ] **Verification Hub Screen** — shows completion status for email / phone / CNIC
+- [ ] **CNIC Upload Screen** — capture front + back with `image_picker`, compress, upload to Supabase Storage bucket `cnic-uploads/{user_id}/`, store hash in `users` table
+- [ ] Handle session persistence across app restarts via `supabase_flutter`'s built-in session management
 
 ---
 
-### Issue #10 — Next.js Auth Pages
+### Issue #11 — Next.js Auth Pages
 
 **Platform**: Next.js  
 **Labels**: `nextjs` `auth`
 
-**Pages to build**:
-- [ ] `/register` — registration form with client-side validation (react-hook-form + zod)
-- [ ] `/login` — login form, `next-auth` credentials provider
-- [ ] `/verify/email` — OTP entry page
-- [ ] `/verify/phone` — OTP entry page
-- [ ] `/verify/cnic` — CNIC image uploader (drag-and-drop + file picker)
-- [ ] `/verify` — verification status hub
-- [ ] Protect routes with `next-auth` middleware (`middleware.ts`)
-- [ ] Show verification badge status on all auth-gated pages
+**Pages**:
+- [ ] `/register` — name, email, phone form → calls `supabase.auth.signUp()` from Server Action
+- [ ] `/login` — email input → `supabase.auth.signInWithOtp({email})` (magic link / OTP)
+- [ ] `/verify/email` — OTP code entry → `supabase.auth.verifyOtp()`
+- [ ] `/verify/phone` — SMS OTP entry
+- [ ] `/verify/cnic` — file uploader (drag-and-drop) → uploads to Supabase Storage, stores hash
+- [ ] `/verify` — verification status hub with progress steps
+- [ ] Set up `middleware.ts` to protect all `(main)/*` and `admin/*` routes
+- [ ] Redirect unauthenticated users to `/login`
+- [ ] Handle Supabase auth callback at `/auth/callback` (OAuth / magic link redirects)
 
 ---
 
-### Issue #11 — User Profile API & Pages
+### Issue #12 — User Profile
 
-**Platform**: Backend + Flutter + Next.js  
+**Platform**: Flutter + Next.js + Supabase  
 **Labels**: `profile`
 
+**Supabase Queries**:
+```sql
+-- Get own profile
+SELECT * FROM users WHERE id = auth.uid();
+
+-- Get public profile (another user)
+SELECT name, trust_score, verification_status, created_at FROM users WHERE id = $1;
+```
+
 **Tasks**:
-- [ ] `GET /api/users/me` — fetch current user profile
-- [ ] `PUT /api/users/me` — update name, profile photo
-- [ ] `GET /api/users/:id/trust-score` — public trust score
-- [ ] `GET /api/users/:id/reviews` — reviews received
-- [ ] Flutter: Profile screen with trust gauge, verification badges, rental history tabs
-- [ ] Next.js: `/profile` page with same information in web layout
-- [ ] Profile photo upload (Firebase Storage / Cloudinary)
+- [ ] Flutter: Profile screen — name, photo, trust gauge, verification badges, rental history tabs
+- [ ] Flutter: Edit profile screen — update name + photo (upload to Storage `avatars/{user_id}`)
+- [ ] Next.js: `/profile` page — same layout adapted for web
+- [ ] Next.js: `/profile/edit` — form with Server Action calling Supabase update
+- [ ] Both: Subscribe to own `users` row via Supabase Realtime for live trust score updates
 
 ---
 
@@ -381,55 +416,60 @@ Build the shared component library and design system for the web application.
 
 ## 📦 Milestone 4 — Item Listing & Management
 
-> **Goal**: Owners can list items. Renters can browse, search, and view item details on both platforms.
+> **Goal**: Owners list items. Renters browse and search. All data lives in Supabase with Storage for images.
 
 ---
 
-### Issue #12 — Item API Endpoints
+### Issue #13 — Items Table & Storage
 
-**Platform**: Backend  
-**Labels**: `backend` `items`
+**Platform**: Supabase  
+**Labels**: `supabase` `items`
 
 **Tasks**:
-- [ ] `POST /api/items` — create item (owner only)
-- [ ] `PUT /api/items/:id` — update item (owner only)
-- [ ] `DELETE /api/items/:id` — soft delete item
-- [ ] `GET /api/items` — paginated list with query filters (category, city, value range, availability)
-- [ ] `GET /api/items/:id` — item detail with owner public profile
-- [ ] Upload up to 8 item photos to cloud storage
-- [ ] Auto-assign `risk_tier` based on `value_pkr`:
-  - Tier 1: < 5,000 PKR
-  - Tier 2: 5,000–50,000 PKR
-  - Tier 3: > 50,000 PKR (requires renter CNIC)
+- [ ] Create `item-images` Storage bucket (public read, auth write)
+- [ ] RLS: only item owner can upload to their folder `item-images/{item_id}/`
+- [ ] Add full-text search index on `items(title, description)` using PostgreSQL `tsvector`
+- [ ] Add database function for nearby items (if location added later)
+- [ ] Write RLS policies: all authenticated users can `SELECT`, only owner can `INSERT/UPDATE/DELETE`
+
+**Item Risk Tier** (auto-assigned by trigger):
+```sql
+risk_tier = CASE
+  WHEN value_pkr < 5000 THEN 'low'
+  WHEN value_pkr BETWEEN 5000 AND 50000 THEN 'medium'
+  ELSE 'high'
+END
+```
 
 ---
 
-### Issue #13 — Flutter Item Screens
+### Issue #14 — Flutter Item Screens
 
 **Platform**: Flutter  
 **Labels**: `flutter` `items`
 
 **Screens**:
-- [ ] **Home / Browse Screen** — item grid with search bar and category filters
-- [ ] **Item Detail Screen** — photo carousel, description, owner card, risk tier badge, "Request Rental" button
-- [ ] **My Listings Screen** — owner's listed items with edit/delete
-- [ ] **Add/Edit Item Screen** — form with image picker (multi-image), category, price, value fields
-- [ ] **Search Screen** — full-text + filter search with results
+- [ ] **Home / Browse Screen** — item grid using `supabase.from('items').select()`, search bar, category chips
+- [ ] **Item Detail Screen** — photo carousel (from Supabase Storage URLs), description, owner trust card, risk tier badge, "Request Rental" CTA
+- [ ] **My Listings Screen** — filtered query `items?owner_id=eq.{uid}`
+- [ ] **Add Item Screen** — form + multi-image picker → upload each to Storage → save URLs array in `items.photo_urls`
+- [ ] **Edit Item Screen** — pre-filled form, update via `supabase.from('items').update()`
+- [ ] **Search Screen** — full-text search using `items?title=ilike.*{query}*`
 
 ---
 
-### Issue #14 — Next.js Item Pages
+### Issue #15 — Next.js Item Pages
 
 **Platform**: Next.js  
 **Labels**: `nextjs` `items`
 
 **Pages**:
-- [ ] `/items` — browsable item grid with sidebar filters (SSR for SEO)
-- [ ] `/items/[id]` — item detail page (SSR) with photo gallery, owner info, risk tier badge
-- [ ] `/my-listings` — owner's dashboard for managing their items
-- [ ] `/my-listings/new` — create item form
-- [ ] `/my-listings/[id]/edit` — edit item form
-- [ ] Drag-and-drop image upload component with preview and reorder
+- [ ] `/items` — SSR item grid with sidebar filters (category, price, tier), SEO-optimized
+- [ ] `/items/[id]` — SSR item detail with photo gallery, owner card, risk tier, "Request Rental" button
+- [ ] `/my-listings` — client-side owner dashboard
+- [ ] `/my-listings/new` — create form with drag-and-drop image uploader → Supabase Storage
+- [ ] `/my-listings/[id]/edit` — edit form
+- [ ] Image reorder + delete from Storage on edit
 
 ---
 
@@ -437,124 +477,136 @@ Build the shared component library and design system for the web application.
 
 ## 🧮 Milestone 5 — Trust Score & Risk Engine
 
-> **Goal**: The core academic contribution. The backend computes a dynamic risk score per transaction and maintains an evolving trust score per user.
+> **Goal**: The core FYP contribution. All logic lives in Supabase Edge Functions — serverless TypeScript functions running on Deno at the edge.
 
 ---
 
-### Issue #15 — Trust Score Engine (Backend)
+### Issue #16 — Trust Score Edge Function
 
-**Platform**: Backend  
-**Labels**: `backend` `risk-engine` `core`
+**Platform**: Supabase Edge Functions  
+**Labels**: `supabase` `edge-functions` `core`
+
+**Function**: `supabase/functions/trust-event/index.ts`
 
 **Description**:  
-Every user has a trust score (0–100) that updates after every behavioral event.
+Called whenever a trust-impacting event occurs. Reads the current score, applies the delta, writes the event, and updates the user row — all in a single database transaction.
 
 **Scoring Table**:
-| Event | Delta |
+| Event Type | Delta |
 |---|---|
-| Email verified | +5 |
-| Phone verified | +5 |
-| CNIC verified | +10 |
-| First rental completed | +15 |
-| Rental returned on time | +10 |
-| Positive review received (4–5★) | +5 |
-| Late return | -10 |
-| Damage claim against user | -20 |
-| Dispute filed against user | -15 |
-| Dispute resolved against user | -25 |
-| Cancellation by renter | -5 |
-| Dispute resolved in user's favor | +5 |
+| `email_verified` | +5 |
+| `phone_verified` | +5 |
+| `cnic_verified` | +10 |
+| `first_rental_completed` | +15 |
+| `on_time_return` | +10 |
+| `positive_review` | +5 |
+| `late_return` | -10 |
+| `damage_claim` | -20 |
+| `dispute_opened_against` | -15 |
+| `dispute_lost` | -25 |
+| `cancellation_by_renter` | -5 |
+| `dispute_won` | +5 |
+
+**Function signature**:
+```typescript
+// POST /functions/v1/trust-event
+// Body: { userId: string, eventType: TrustEventType, rentalId?: string }
+// Auth: service_role key (internal calls only)
+```
 
 **Tasks**:
-- [ ] Create `TrustScoreService` with `applyEvent(userId, eventType)` method
-- [ ] Score clamped between 0–100
-- [ ] All events logged to `trust_events` table with `delta` and `new_score`
-- [ ] Expose `GET /api/users/:id/trust-score` (public, rounded to nearest 5)
-- [ ] Expose `GET /api/users/:id/trust-events` (private, full history)
-- [ ] Write unit tests for all 11 event types
-- [ ] Document in `docs/trust-score.md`
+- [ ] Create Edge Function `trust-event`
+- [ ] Read current `trust_score` from `users` table
+- [ ] Calculate `new_score = clamp(current + delta, 0, 100)`
+- [ ] Insert into `trust_events` (event_type, delta, new_score, rental_id, timestamp)
+- [ ] Update `users.trust_score = new_score`
+- [ ] Use database transaction (`BEGIN/COMMIT`) to ensure atomicity
+- [ ] Deploy: `supabase functions deploy trust-event`
+- [ ] Write unit tests with Deno test runner
+- [ ] Document all events in `docs/trust-score.md`
 
 ---
 
-### Issue #16 — Transaction Risk Scoring Engine (Backend)
+### Issue #17 — Risk Scoring Edge Function
 
-**Platform**: Backend  
-**Labels**: `backend` `risk-engine` `core`
+**Platform**: Supabase Edge Functions  
+**Labels**: `supabase` `edge-functions` `core`
+
+**Function**: `supabase/functions/risk-score/index.ts`
 
 **Description**:  
-When a rental request is submitted, compute a risk score (0–100%) for that specific transaction.
+Called when a rental request is submitted. Computes a 0–100 risk score from user and transaction signals, returns the full risk result, and stores it in `rental_requests.risk_json`.
 
-**Risk Factor Weights**:
-| Factor | Max Impact |
+**Risk Factors**:
+| Factor | Scoring Logic |
 |---|---|
-| Renter trust score (inverse) | 30 pts |
-| Item value tier | 25 pts |
-| Rental duration (longer = higher risk) | 15 pts |
-| Account age (newer = higher risk) | 10 pts |
-| CNIC not verified | 10 pts |
-| Past disputes | 10 pts |
+| Renter trust score | `30 × (1 - trust_score/100)` |
+| Item value tier | low=0, medium=15, high=25 |
+| Rental duration | `min(duration_days / 2, 15)` |
+| Account age (days) | `age < 7 → +10, age < 30 → +5, else 0` |
+| CNIC not verified | `+10` |
+| Open disputes | `disputes × 5` (max 10) |
 
-**Output**:
-```json
+**Output JSON**:
+```typescript
 {
-  "risk_score": 34,
-  "risk_label": "Medium",
-  "risk_color": "orange",
-  "recommended_deposit_pkr": 30000,
-  "max_recommended_days": 14,
-  "flags": ["short_account_age", "no_cnic"],
-  "action": "proceed_with_verification",
-  "blocked": false
+  risk_score: number,        // 0–100
+  risk_label: "Low" | "Medium" | "High" | "Blocked",
+  risk_color: "green" | "orange" | "red",
+  recommended_deposit_pkr: number,
+  max_recommended_days: number,
+  flags: string[],           // ["short_account_age", "no_cnic", ...]
+  action: "approve" | "verify" | "restrict" | "block",
+  blocked: boolean
 }
 ```
 
 **Action Thresholds**:
-| Risk % | Action |
+| Score | Action |
 |---|---|
-| 0–30 | ✅ Auto-approve |
-| 31–60 | ⚠️ Require extra verification step |
-| 61–80 | 🔴 Require CNIC + higher deposit |
-| 81–100 | 🚫 Block — suggest shorter duration or lower value item |
+| 0–30 | `approve` — auto-proceed |
+| 31–60 | `verify` — prompt missing verification |
+| 61–80 | `restrict` — require CNIC + higher deposit |
+| 81–100 | `block` — reject, suggest alternatives |
 
 **Tasks**:
-- [ ] Implement `RiskScoringEngine` service
-- [ ] Integrate into `POST /api/rental-requests` — compute and store score before saving
-- [ ] Expose `GET /api/rental-requests/:id/risk` — fetch risk result
-- [ ] Write unit tests for all threshold combinations
+- [ ] Create Edge Function `risk-score`
+- [ ] Fetch renter's `trust_score`, `created_at`, `verification_status` from `users`
+- [ ] Fetch item `value_pkr`, `risk_tier` from `items`
+- [ ] Count open disputes against renter from `disputes`
+- [ ] Compute final score and output JSON
+- [ ] Store result in `rental_requests.risk_json`
+- [ ] Deploy: `supabase functions deploy risk-score`
+- [ ] Write unit tests covering all threshold combinations
 - [ ] Document algorithm in `docs/risk-engine.md`
 
 ---
 
-### Issue #17 — Risk Score UI (Flutter)
+### Issue #18 — Risk Score UI (Flutter)
 
 **Platform**: Flutter  
 **Labels**: `flutter` `risk-engine`
 
-**Description**:  
-After a renter fills in rental details (dates, duration), show a risk analysis screen before they confirm the request.
-
 **Screens**:
-- [ ] **Risk Analysis Screen** — animated risk gauge (0–100%), color-coded label, flags list, recommended deposit
-- [ ] **Blocked Screen** — shown when `action = blocked`, explains why and offers alternatives
-- [ ] **Verification Gate Screen** — shown for medium-risk, prompts missing verification steps
-- [ ] Renter must tap "I understand, proceed" to confirm after seeing risk
-- [ ] Risk card also shown on owner's side when reviewing a request
+- [ ] **Rental Request Screen** — date picker → on confirm, call `risk-score` Edge Function via Supabase invoke
+- [ ] **Risk Analysis Screen** — animated risk gauge, color-coded label, flags list, recommended deposit, action button
+- [ ] **Blocked Screen** — shown when `action = block`, explains reason, suggests alternatives
+- [ ] **Verification Gate Screen** — for medium/high risk, links to missing verification steps
+- [ ] Owner sees renter's risk card when reviewing incoming requests
 
 ---
 
-### Issue #18 — Risk Score UI (Next.js)
+### Issue #19 — Risk Score UI (Next.js)
 
 **Platform**: Next.js  
 **Labels**: `nextjs` `risk-engine`
 
-**Description**:  
-Equivalent risk display on the web, shown during rental request flow.
-
-**Components**:
-- [ ] `RiskScoreCard` — animated score bar, color-coded label, flags with icons
-- [ ] `BlockedRentalAlert` — alert component explaining blocking reason
-- [ ] `VerificationPrompt` — inline prompt to complete missing verifications
-- [ ] Risk summary shown in rental request review step (multi-step form)
+**Components + Pages**:
+- [ ] `RiskScoreCard` — animated score bar, label badge, flags with icons, deposit amount
+- [ ] `BlockedRentalAlert` — explains blocking reason, suggests alternatives
+- [ ] `VerificationGatePrompt` — inline prompt to complete missing verifications
+- [ ] Multi-step rental request form: step 1 (dates) → step 2 (risk review) → step 3 (confirm)
+- [ ] Invoke `risk-score` Edge Function: `supabase.functions.invoke('risk-score', { body: {...} })`
 
 ---
 
@@ -562,47 +614,53 @@ Equivalent risk display on the web, shown during rental request flow.
 
 ## 💰 Milestone 6 — Dynamic Deposit System
 
-> **Goal**: Deposit is calculated per rental based on item value and renter risk — not a flat rate.
+> **Goal**: Deposit is calculated per rental by a Supabase Edge Function — not a flat rate.
 
 ---
 
-### Issue #19 — Deposit Calculator (Backend)
+### Issue #20 — Deposit Calculator Edge Function
 
-**Platform**: Backend  
-**Labels**: `backend` `deposits`
+**Platform**: Supabase Edge Functions  
+**Labels**: `supabase` `edge-functions` `deposits`
+
+**Function**: `supabase/functions/deposit-calc/index.ts`
 
 **Formula**:
-```
-base_rate = 0.10 (Tier 1) | 0.15 (Tier 2) | 0.20 (Tier 3)
-base_deposit = item_value_pkr × base_rate
-risk_multiplier = 1.0 (low) | 1.5 (medium) | 2.5 (high)
-final_deposit = base_deposit × risk_multiplier
+```typescript
+const baseRates = { low: 0.10, medium: 0.15, high: 0.20 };
+const riskMultipliers = { Low: 1.0, Medium: 1.5, High: 2.5 };
+
+const baseDeposit = itemValuePkr * baseRates[riskTier];
+const finalDeposit = Math.ceil(baseDeposit * riskMultipliers[riskLabel]);
 ```
 
-**Deposit Lifecycle States**:
-`pending` → `held` → `released` | `partially_forfeited` | `fully_forfeited`
+**Deposit Lifecycle States** (stored in `rentals.deposit_status`):
+```
+pending → held → released
+                → partially_forfeited
+                → fully_forfeited
+```
 
 **Tasks**:
-- [ ] `DepositCalculatorService` with `calculate(itemValue, riskLevel)` method
-- [ ] Deposit amount included in risk score response
-- [ ] `deposit_status` tracked in `rentals` table
-- [ ] `PATCH /api/rentals/:id/deposit-status` — admin only
-- [ ] Notify both parties on deposit status change
-- [ ] Write unit tests for all tier × risk combinations
+- [ ] Create Edge Function `deposit-calc` (can be called inside `risk-score`)
+- [ ] Result included in risk score output and stored in `rental_requests.deposit_required_pkr`
+- [ ] `deposit_status` updated by admin via Supabase dashboard or admin panel
+- [ ] Database trigger: send notification when `deposit_status` changes
+- [ ] Write unit tests for all tier × risk level combinations
 
 ---
 
-### Issue #20 — Deposit Display (Flutter + Next.js)
+### Issue #21 — Deposit Display (Flutter + Next.js)
 
 **Platform**: Flutter + Next.js  
 **Labels**: `flutter` `nextjs` `deposits`
 
 **Tasks**:
-- [ ] Flutter: Show deposit amount prominently on rental request confirmation screen
-- [ ] Flutter: Deposit status chip on rental detail screen (color-coded)
-- [ ] Next.js: Deposit amount in rental request review step
-- [ ] Next.js: Deposit status timeline on rental detail page
-- [ ] Both: Show deposit breakdown (item value × rate × multiplier)
+- [ ] Flutter: Deposit breakdown widget on rental request confirmation screen
+- [ ] Flutter: Deposit status chip on rental detail screen (color by state)
+- [ ] Next.js: Deposit amount + breakdown in rental request review step
+- [ ] Next.js: Deposit status timeline card on `/rentals/[id]`
+- [ ] Both: Show formula breakdown (e.g., "Rs. 100,000 × 20% × 1.5x risk = Rs. 30,000")
 
 ---
 
@@ -610,60 +668,70 @@ final_deposit = base_deposit × risk_multiplier
 
 ## 📝 Milestone 7 — Digital Rental Contract
 
-> **Goal**: Both parties sign a digital contract before the rental activates. It is immutable once signed.
+> **Goal**: Both parties sign a digital contract generated by a Supabase Edge Function. Once signed, the contract record is immutable.
 
 ---
 
-### Issue #21 — Contract Generation & Signing API
+### Issue #22 — Contract Generator Edge Function
 
-**Platform**: Backend  
-**Labels**: `backend` `contracts`
+**Platform**: Supabase Edge Functions  
+**Labels**: `supabase` `edge-functions` `contracts`
+
+**Function**: `supabase/functions/contract-gen/index.ts`
+
+**Description**:  
+Called when both parties agree to proceed. Generates a structured JSON contract from rental data and stores it in the `contracts` table.
 
 **Contract Contains**:
 - Item name, description, value (PKR)
-- Owner and renter verified names + IDs
+- Owner and renter verified names + user IDs
 - Rental start & end dates, daily rate
-- Deposit amount held
-- Late return penalty (2% of item value per day, configurable)
-- Damage policy (minor / major / total loss thresholds)
-- Loss or theft reporting procedure (must report within 24h)
-- Platform dispute process reference
+- Deposit amount held (from deposit-calc)
+- Late return penalty: 2% of item value per day (configurable)
+- Damage policy thresholds
+- Loss/theft reporting procedure (must report within 24h)
+- Platform dispute resolution reference
+- Generated timestamp + contract version
 
 **Tasks**:
-- [ ] `POST /api/contracts/generate/:rental_request_id` — auto-generate contract JSON
-- [ ] `POST /api/contracts/:id/sign` — record signature (owner or renter, timestamp)
-- [ ] Contract locked (read-only) after both sign
-- [ ] `GET /api/contracts/:id` — fetch contract for a rental
-- [ ] Generate PDF view of the contract (use `pdfkit` or `puppeteer`)
-- [ ] Rental status moves to `contract_signed` after both sign
+- [ ] Create Edge Function `contract-gen`
+- [ ] Fetch all required data from `rental_requests`, `items`, `users`
+- [ ] Build `terms_json` object with all contract fields
+- [ ] Insert into `contracts` table, link to `rental_request_id`
+- [ ] Signing: update `owner_signed_at` or `renter_signed_at` via direct Supabase update (with RLS)
+- [ ] After both sign: database trigger sets `rentals.status = 'contract_signed'`
+- [ ] Immutability: RLS policy blocks all `UPDATE` on `contracts` once both timestamps are set
+- [ ] Generate a human-readable PDF view (using `jspdf` in Next.js or `pdf` Dart package in Flutter)
+- [ ] Deploy: `supabase functions deploy contract-gen`
 
 ---
 
-### Issue #22 — Contract UI (Flutter)
+### Issue #23 — Contract UI (Flutter)
 
 **Platform**: Flutter  
 **Labels**: `flutter` `contracts`
 
 **Screens**:
-- [ ] **Contract Review Screen** — scrollable contract with all terms
-- [ ] "Sign" button only enables after scroll reaches bottom
-- [ ] Show both parties' signing status (owner ✅ / renter ⏳)
-- [ ] After both sign — animated confirmation + rental activates
-- [ ] **Contract Detail Screen** — viewable throughout rental lifecycle
-- [ ] Download as PDF option
+- [ ] **Contract Review Screen** — scrollable contract with all terms rendered from `terms_json`
+- [ ] "Sign" FAB only enabled after reaching the end of the scroll
+- [ ] Show both parties' signing status with timestamps
+- [ ] After both sign: animated success confirmation + rental status updates via Realtime
+- [ ] **Contract Detail Screen** — viewable at any point in rental lifecycle
+- [ ] PDF download / share button
 
 ---
 
-### Issue #23 — Contract UI (Next.js)
+### Issue #24 — Contract UI (Next.js)
 
 **Platform**: Next.js  
 **Labels**: `nextjs` `contracts`
 
 **Pages/Components**:
-- [ ] `/rentals/[id]/contract` — full contract viewer page
+- [ ] `/rentals/[id]/contract` — contract viewer page
 - [ ] Scroll-to-bottom gate before sign button activates
-- [ ] Signing status bar (shows owner / renter signed states)
-- [ ] PDF download button (opens generated PDF)
+- [ ] `ContractSigningStatus` component — shows owner/renter signed states with timestamps
+- [ ] Realtime subscription: update UI when other party signs without page refresh
+- [ ] PDF download button (client-side PDF generation from `terms_json`)
 - [ ] Confirmation modal after signing
 
 ---
@@ -672,72 +740,78 @@ final_deposit = base_deposit × risk_multiplier
 
 ## 📸 Milestone 8 — Item Condition Evidence System
 
-> **Goal**: Photo/video evidence of item condition is captured and stored before and after every rental.
+> **Goal**: Photo/video evidence is captured and stored in Supabase Storage before and after every rental.
 
 ---
 
-### Issue #24 — Evidence Upload API
+### Issue #25 — Evidence Storage Setup
 
-**Platform**: Backend  
-**Labels**: `backend` `evidence`
+**Platform**: Supabase Storage  
+**Labels**: `supabase` `storage` `evidence`
+
+**Storage Buckets**:
+| Bucket | Access | Path Pattern |
+|---|---|---|
+| `item-images` | Public read | `item-images/{item_id}/{filename}` |
+| `cnic-uploads` | Private (owner + admin only) | `cnic-uploads/{user_id}/{front\|back}` |
+| `evidence` | Private (rental parties only) | `evidence/{rental_id}/{pre\|post}/{uploader_id}/{filename}` |
+| `avatars` | Public read | `avatars/{user_id}` |
 
 **Tasks**:
-- [ ] `POST /api/evidence` — upload evidence file (multipart/form-data)
-  - Fields: `rental_id`, `type` (pre_rental/post_rental), `uploaded_by`
-- [ ] Store files in Firebase Storage or Cloudinary
-- [ ] Store metadata (file_url, uploader, timestamp, type) in `evidence` table
-- [ ] `GET /api/evidence/:rental_id` — fetch all evidence for a rental
-- [ ] Maximum 10 files per evidence upload
-- [ ] Support image (JPEG, PNG, HEIC) and short video (MP4, max 60s)
-- [ ] Limit file size: images 10MB, videos 100MB
+- [ ] Create all Storage buckets with correct access rules
+- [ ] Write Storage RLS policies (Supabase Storage uses its own policy system)
+- [ ] Evidence bucket: only renter or item owner can read/write for their rental
+- [ ] `evidence` table: stores `storage_path`, `type` (pre/post), `uploaded_by`, `timestamp`
+- [ ] Max file size limits: images 10MB, videos 100MB (set in bucket config)
 
 ---
 
-### Issue #25 — Evidence Upload (Flutter)
+### Issue #26 — Evidence Upload (Flutter)
 
 **Platform**: Flutter  
 **Labels**: `flutter` `evidence`
 
 **Screens**:
-- [ ] **Pre-Rental Evidence Screen (Owner)** — multi-image picker from camera/gallery, upload all at once
-- [ ] **Receipt Confirmation Screen (Renter)** — "I have received the item" + option to add own photos
-- [ ] **Return Evidence Screen (Renter)** — upload photos before physical return
-- [ ] **Return Confirmation Screen (Owner)** — upload received-condition photos
-- [ ] **Evidence Gallery Screen** — view before/after side-by-side for a rental
-- [ ] Show upload progress indicator
-- [ ] Compress images before upload (`flutter_image_compress`)
+- [ ] **Pre-Rental Evidence Screen (Owner)** — multi-image picker, compress with `flutter_image_compress`, upload to `evidence/{rental_id}/pre/`, insert metadata row
+- [ ] **Receipt Confirmation Screen (Renter)** — "I received the item" button + optional photos
+- [ ] **Return Evidence Screen (Renter)** — upload return condition photos
+- [ ] **Return Confirmation Screen (Owner)** — upload received-state photos
+- [ ] **Evidence Gallery Screen** — side-by-side before/after grid fetched from Supabase Storage
+- [ ] Upload progress indicator per file
+- [ ] Show upload errors with retry option
 
 ---
 
-### Issue #26 — Evidence Upload (Next.js)
+### Issue #27 — Evidence Upload (Next.js)
 
 **Platform**: Next.js  
 **Labels**: `nextjs` `evidence`
 
 **Pages/Components**:
-- [ ] `/rentals/[id]/evidence/upload` — drag-and-drop multi-file uploader
-- [ ] Before/after evidence comparison view (`ImageCompare` slider component)
+- [ ] `/rentals/[id]/evidence/upload` — drag-and-drop multi-file uploader, direct upload to Supabase Storage using `supabase.storage.from('evidence').upload()`
+- [ ] `ImageCompareSlider` — before/after comparison slider component
 - [ ] Evidence gallery grid on rental detail page
-- [ ] File type validation and size limit enforcement on frontend
+- [ ] File type and size validation on frontend before upload
 
 ---
 
-### Issue #27 — (Optional) Computer Vision Damage Detection
+### Issue #28 — (Optional) Computer Vision Damage Detection
 
-**Platform**: Backend  
-**Labels**: `backend` `computer-vision` `optional`
+**Platform**: Python FastAPI Microservice  
+**Labels**: `python` `computer-vision` `optional`
 
 **Description**:  
-After post-rental evidence is uploaded, run an image comparison to flag potential damage.
+A separate Python FastAPI service that accepts two Supabase Storage image URLs and returns a damage confidence score. Called from a Supabase Edge Function after post-rental evidence upload.
 
 **Tasks**:
-- [ ] Python microservice (FastAPI) that accepts two image URLs and returns a damage confidence score
-- [ ] Use OpenCV structural similarity (SSIM) or a fine-tuned CNN
-- [ ] Call from Node.js backend after post-rental evidence is uploaded
+- [ ] Set up FastAPI service at `/cv-service`
+- [ ] `POST /analyze` — accepts `{pre_url, post_url}`, returns `{damage_score: 0.72, regions: [...]}`
+- [ ] Use OpenCV SSIM as baseline; optionally upgrade to YOLOv8 fine-tuned on damage
+- [ ] Deploy as a separate service (Docker container)
+- [ ] Call from Supabase Edge Function via HTTP after post-rental upload
 - [ ] Store result in `evidence_analysis` table
-- [ ] Flag rental for admin review if confidence > 0.6
-- [ ] Show result in admin dispute panel
-- [ ] Add "AI-assisted analysis — not conclusive" disclaimer on all CV outputs
+- [ ] Flag rental for admin review if `damage_score > 0.6`
+- [ ] Show "AI-assisted analysis — not conclusive" disclaimer in all UI
 
 ---
 
@@ -745,85 +819,103 @@ After post-rental evidence is uploaded, run an image comparison to flag potentia
 
 ## ⏱️ Milestone 9 — Rental Lifecycle & Return Monitoring
 
-> **Goal**: The system tracks every rental from creation to return, with automated state transitions and alerts.
+> **Goal**: A validated state machine governs rental progression. Supabase `pg_cron` jobs automate overdue detection and notifications.
 
 ---
 
-### Issue #28 — Rental State Machine (Backend)
+### Issue #29 — Rental State Machine
 
-**Platform**: Backend  
-**Labels**: `backend` `rentals`
+**Platform**: Supabase (PostgreSQL triggers + Edge Functions)  
+**Labels**: `supabase` `rentals`
 
 **States**:
 ```
 requested
   → approved (owner accepts)
-  → contract_signed (both signed)
+  → contract_signed (both signed — trigger from contracts table)
   → evidence_uploaded (owner uploads pre photos)
   → active (renter confirms receipt)
   → return_initiated (renter uploads return evidence)
-  → completed (owner confirms return, deposit released)
-  → overdue (past due date, not returned)
-  → escalated (overdue 3+ days, dispute eligible)
+  → completed (owner confirms return)
+  → overdue (pg_cron job: past due date, not returned)
+  → escalated (pg_cron job: overdue 3+ days)
   → disputed
   → cancelled
 ```
 
 **Tasks**:
-- [ ] Implement `RentalStateMachine` with validated transitions
-- [ ] Log every state change in `rental_events` audit table
-- [ ] `PATCH /api/rentals/:id/status` — trigger state transition
-- [ ] `GET /api/rentals/:id/timeline` — full event history with timestamps
-- [ ] Reject invalid transitions with descriptive error
+- [ ] Write PostgreSQL function `transition_rental_status(rental_id, new_status)` that validates transitions
+- [ ] Log every transition into `rental_events` (from_status, to_status, triggered_by, timestamp)
+- [ ] Database trigger: on `rentals.status` change, call `trust-event` Edge Function for relevant events (e.g., `completed` → `on_time_return`)
+- [ ] Expose Supabase RPC: `supabase.rpc('transition_rental_status', {...})`
+- [ ] Document all valid transitions in `docs/rental-state-machine.md`
 
 ---
 
-### Issue #29 — Return Monitoring Cron Job (Backend)
+### Issue #30 — Return Monitoring with pg_cron
 
-**Platform**: Backend  
-**Labels**: `backend` `jobs`
+**Platform**: Supabase (pg_cron extension)  
+**Labels**: `supabase` `pg_cron` `jobs`
 
-**Schedule**:
-| Time | Action |
+**Description**:  
+Schedule daily cron jobs using Supabase's built-in `pg_cron` extension. These jobs check for approaching and overdue rentals, update statuses, and queue notifications.
+
+**Cron Jobs**:
+```sql
+-- Run daily at 08:00 UTC
+SELECT cron.schedule('return-monitor', '0 8 * * *',
+  $$SELECT net.http_post(
+    url := 'https://<project>.supabase.co/functions/v1/return-monitor',
+    headers := '{"Authorization": "Bearer <service_role_key>"}'
+  )$$
+);
+```
+
+**Return Monitor Edge Function** (`supabase/functions/return-monitor/index.ts`):
+| Condition | Action |
 |---|---|
-| Due date - 48h | Send "returning soon" reminder notification |
-| Due date - 24h | Send "due tomorrow" reminder |
-| Due date (T+0) | Send "due today" alert |
-| T + 1 day | Mark rental `overdue`, apply -10 trust event |
-| T + 3 days | Mark `escalated`, notify both parties, enable dispute |
-| T + 7 days | Auto-flag for admin review |
+| `due_date - NOW() = 2 days` | Queue "returning soon" notification |
+| `due_date - NOW() = 1 day` | Queue "due tomorrow" notification |
+| `due_date = TODAY` | Queue "due today" notification |
+| `due_date + 1 day < NOW()` | Set `status = overdue`, call `trust-event(late_return)` |
+| `due_date + 3 days < NOW()` | Set `status = escalated`, notify both parties |
+| `due_date + 7 days < NOW()` | Flag for admin review |
 
 **Tasks**:
-- [ ] Set up `node-cron` job running daily at midnight
-- [ ] `ReturnMonitoringJob` checks all active rentals
-- [ ] Apply state transitions and trust events automatically
-- [ ] Trigger push + email notifications at each stage
+- [ ] Create Edge Function `return-monitor`
+- [ ] Register `pg_cron` job in `supabase/migrations/004_pg_cron_jobs.sql`
+- [ ] Edge Function queries all active + overdue rentals, applies logic
+- [ ] Batch-insert notifications for all affected rentals
+- [ ] Apply trust score events for late returns
+- [ ] Test by temporarily setting `due_date` to the past in dev environment
 
 ---
 
-### Issue #30 — Rental Management Screens (Flutter)
+### Issue #31 — Rental Screens (Flutter)
 
 **Platform**: Flutter  
 **Labels**: `flutter` `rentals`
 
 **Screens**:
-- [ ] **My Rentals Screen** — tabs: Active, Pending, Completed, Disputes
-- [ ] **Rental Detail Screen** — full timeline, contract link, evidence gallery, deposit status, action buttons
-- [ ] **Rental Request Screen** — date picker, duration, shows real-time risk score
-- [ ] **Owner Requests Screen** — incoming requests with renter risk card, approve/reject
+- [ ] **My Rentals Screen** — tabs: Active, Pending, Completed, Disputes — queries with Riverpod + Supabase
+- [ ] **Rental Detail Screen** — full status timeline (from `rental_events`), contract link, evidence gallery, deposit status, action buttons
+- [ ] **Rental Request Screen** — date picker → invoke `risk-score` → show Risk Analysis Screen → confirm
+- [ ] **Owner Requests Screen** — incoming requests with renter risk card, approve/reject actions
+- [ ] Subscribe to `rentals` Realtime channel for live status updates
 
 ---
 
-### Issue #31 — Rental Management Pages (Next.js)
+### Issue #32 — Rental Pages (Next.js)
 
 **Platform**: Next.js  
 **Labels**: `nextjs` `rentals`
 
 **Pages**:
-- [ ] `/rentals` — tabbed list (as renter / as owner)
-- [ ] `/rentals/[id]` — detail page with timeline, evidence, contract, deposit
-- [ ] `/rentals/[id]/request` — multi-step rental request form (dates → risk review → deposit → confirm)
-- [ ] `/owner/requests` — incoming requests dashboard with renter risk summaries
+- [ ] `/rentals` — tabbed list (as renter / as owner) with status filters
+- [ ] `/rentals/[id]` — detail: timeline, evidence, contract, deposit status, action buttons
+- [ ] `/rentals/new?item=[id]` — multi-step form: dates → risk review → deposit → confirm
+- [ ] `/owner/requests` — incoming requests with renter risk summaries
+- [ ] Supabase Realtime subscription on `/rentals/[id]` for live status changes
 
 ---
 
@@ -831,110 +923,136 @@ requested
 
 ## ⚖️ Milestone 10 — Dispute Resolution System
 
-> **Goal**: A structured process for raising and resolving conflicts, using all platform-collected evidence.
+> **Goal**: A structured dispute process backed by all platform-collected evidence and resolved through the admin panel.
 
 ---
 
-### Issue #32 — Dispute API
+### Issue #33 — Disputes Table & Logic
 
-**Platform**: Backend  
-**Labels**: `backend` `disputes`
+**Platform**: Supabase  
+**Labels**: `supabase` `disputes`
 
 **Tasks**:
-- [ ] `POST /api/disputes` — file dispute (rental_id, type, description)
-- [ ] `GET /api/disputes/:id` — dispute detail with linked evidence + contract
-- [ ] `GET /api/disputes` — list disputes (filtered by user or admin)
-- [ ] `PATCH /api/disputes/:id/resolve` — admin only: set resolution + notes
-- [ ] Auto-apply trust score impact after resolution (see Issue #15)
-- [ ] Notify both parties on filing and resolution
+- [ ] `disputes` table with RLS: only parties involved can insert; admin can update resolution
+- [ ] `POST` via `supabase.from('disputes').insert()` — file a dispute
+- [ ] Database trigger on `disputes.status` change: call `trust-event` Edge Function
+- [ ] On resolution `renter_liable`: call `trust-event(dispute_lost)` for renter
+- [ ] On resolution `owner_liable`: call `trust-event(dispute_won)` for renter (restore some score)
+- [ ] Update `rentals.deposit_status` based on resolution outcome
+- [ ] Notify both parties via notification system
 
 ---
 
-### Issue #33 — Dispute Screens (Flutter)
+### Issue #34 — Dispute Screens (Flutter)
 
 **Platform**: Flutter  
 **Labels**: `flutter` `disputes`
 
 **Screens**:
-- [ ] **File Dispute Screen** — dispute type selector, description field, attach additional evidence
-- [ ] **My Disputes Screen** — list of open and resolved disputes
-- [ ] **Dispute Detail Screen** — timeline, evidence viewer, contract summary, status, resolution notes
-- [ ] Status badges: `Open` 🔴, `Under Review` 🟡, `Resolved` ✅
+- [ ] **File Dispute Screen** — select type (dropdown), describe issue, optionally attach photos (upload to `evidence` bucket, type `dispute_evidence`)
+- [ ] **My Disputes Screen** — list with status chips
+- [ ] **Dispute Detail Screen** — timeline, before/after evidence viewer, contract summary, status, resolution notes (when resolved)
 
 ---
 
-### Issue #34 — Dispute Pages (Next.js)
+### Issue #35 — Dispute Pages (Next.js)
 
 **Platform**: Next.js  
 **Labels**: `nextjs` `disputes`
 
 **Pages**:
-- [ ] `/disputes/new?rental=[id]` — dispute filing form
+- [ ] `/disputes/new?rental=[id]` — dispute type + description form
 - [ ] `/disputes` — user's disputes list
-- [ ] `/disputes/[id]` — dispute detail with before/after evidence viewer, contract, timeline
+- [ ] `/disputes/[id]` — detail page with `ImageCompareSlider`, contract summary, timeline, resolution card
 
 ---
 
 ---
 
-## 🔔 Milestone 11 — Notifications & Alerts
+## 🔔 Milestone 11 — Realtime Notifications & Alerts
 
-> **Goal**: Users receive timely notifications on both mobile (push) and web (in-app + email).
+> **Goal**: Users receive instant in-app notifications via Supabase Realtime, plus push notifications (mobile) and email alerts.
 
 ---
 
-### Issue #35 — Notification API
+### Issue #36 — Notification System (Supabase)
 
-**Platform**: Backend  
-**Labels**: `backend` `notifications`
+**Platform**: Supabase  
+**Labels**: `supabase` `notifications`
+
+**Description**:  
+All notifications are written to the `notifications` table. Supabase Realtime broadcasts inserts to subscribed clients instantly — no polling needed.
 
 **Notification Events**:
-- Rental request received (owner)
-- Rental approved / rejected (renter)
-- Contract ready to sign
-- Evidence upload reminder
-- Rental due in 48h / 24h / overdue
-- Dispute filed
-- Dispute resolved
-- Trust score milestone (e.g., unlocked high-value rentals)
-- Review received
+| Event | Recipient |
+|---|---|
+| Rental request received | Owner |
+| Rental approved / rejected | Renter |
+| Contract ready to sign | Both |
+| Evidence upload reminder | Owner (pre) / Renter (post) |
+| Due in 48h / 24h | Renter |
+| Rental overdue | Both |
+| Dispute filed | Other party |
+| Dispute resolved | Both |
+| Trust score milestone | User |
+| Review received | User |
 
 **Tasks**:
-- [ ] `NotificationService` dispatches all events
-- [ ] Store all notifications in `notifications` table
-- [ ] `GET /api/notifications` — paginated, unread first
-- [ ] `PATCH /api/notifications/:id/read` — mark read
-- [ ] `PATCH /api/notifications/read-all`
-- [ ] Integrate FCM for push (mobile)
-- [ ] Integrate email templates (SendGrid / nodemailer)
+- [ ] All events insert into `notifications` table via Edge Functions or database triggers
+- [ ] `notifications` table has RLS: users read only their own rows
+- [ ] `GET` notifications: `supabase.from('notifications').select().eq('user_id', uid).order('created_at', {ascending: false})`
+- [ ] Mark read: `supabase.from('notifications').update({read: true}).eq('id', notifId)`
 
 ---
 
-### Issue #36 — Flutter Notifications
+### Issue #37 — Flutter Realtime Notifications
 
 **Platform**: Flutter  
-**Labels**: `flutter` `notifications`
+**Labels**: `flutter` `notifications` `realtime`
 
 **Tasks**:
-- [ ] Integrate `firebase_messaging` for FCM push
-- [ ] Handle foreground and background push messages
-- [ ] `flutter_local_notifications` for in-app banners
-- [ ] **Notifications Screen** — list with unread badge, tap to navigate to related screen
-- [ ] Bell icon in AppBar with unread count badge
-- [ ] Deep link from notification to correct screen (go_router)
+- [ ] Subscribe to `notifications` Realtime channel on app start:
+  ```dart
+  supabase.from('notifications')
+    .stream(primaryKey: ['id'])
+    .eq('user_id', userId)
+    .listen((data) => notificationProvider.update(data));
+  ```
+- [ ] Show in-app banner using `flutter_local_notifications` when new notification arrives in foreground
+- [ ] **Notifications Screen** — list with unread/read states, tap to navigate deep link
+- [ ] Bell icon in AppBar with unread count badge (Riverpod provider)
+- [ ] FCM push for background/terminated app notifications (backend inserts → Edge Function calls FCM)
 
 ---
 
-### Issue #37 — Next.js Notifications
+### Issue #38 — Next.js Realtime Notifications
 
 **Platform**: Next.js  
-**Labels**: `nextjs` `notifications`
+**Labels**: `nextjs` `notifications` `realtime`
 
 **Tasks**:
-- [ ] Notification dropdown in top nav with unread count badge
-- [ ] `/notifications` page — full list with read/unread states
-- [ ] Poll for new notifications every 30s (or use WebSocket if time allows)
-- [ ] Toast notifications for real-time in-session events
+- [ ] Subscribe to `notifications` Realtime channel in root layout:
+  ```typescript
+  supabase.channel('notifications')
+    .on('postgres_changes', { event: 'INSERT', table: 'notifications', filter: `user_id=eq.${uid}` }, handler)
+    .subscribe()
+  ```
+- [ ] Toast notification popup for new inserts while user is on-site
+- [ ] Notification bell dropdown in top nav with unread count badge
+- [ ] `/notifications` page — full list with read/unread states, mark all read button
+
+---
+
+### Issue #39 — Email Notifications
+
+**Platform**: Supabase Edge Functions  
+**Labels**: `supabase` `edge-functions` `email`
+
+**Tasks**:
+- [ ] Use Supabase built-in email (or connect SendGrid in Supabase dashboard → SMTP settings)
+- [ ] Edge Function `send-email` triggered for: rental approved, overdue, dispute filed, dispute resolved
+- [ ] HTML email templates for each event type
+- [ ] Never send more than 3 emails per day per user (throttle in Edge Function)
 
 ---
 
@@ -942,75 +1060,78 @@ requested
 
 ## 🛠️ Milestone 12 — Admin Panel (Next.js Web Only)
 
-> **Goal**: Platform administrators can manage users, monitor rentals, review disputes, and audit trust activity.
+> **Goal**: Administrators can manage the platform — users, disputes, CNIC reviews, and trust events — using a secure web-only admin interface.
 
 ---
 
-### Issue #38 — Admin Dashboard
+### Issue #40 — Admin Authentication & Roles
 
-**Platform**: Next.js  
-**Labels**: `nextjs` `admin`
+**Platform**: Supabase + Next.js  
+**Labels**: `supabase` `nextjs` `admin` `auth`
 
-**Tasks**:
-- [ ] `/admin` — dashboard with key metrics:
-  - Total users (+ new this week)
-  - Active rentals
-  - Open disputes
-  - High-risk transactions flagged
-  - Trust events today
-- [ ] Charts: new user signups (7d), rental volume (30d), dispute rate (recharts)
-- [ ] Quick links to dispute queue, flagged users
-
----
-
-### Issue #39 — Admin User Management
-
-**Platform**: Next.js  
-**Labels**: `nextjs` `admin`
-
-**Tasks**:
-- [ ] `/admin/users` — paginated user table with search and filters
-- [ ] `/admin/users/[id]` — user detail: profile, trust score timeline, rental history, trust events log
-- [ ] Admin actions: suspend account, reset trust score override, manually verify CNIC
-- [ ] CNIC review queue: list of pending CNIC uploads with approve/reject
-
----
-
-### Issue #40 — Admin Dispute Review Panel
-
-**Platform**: Next.js  
-**Labels**: `nextjs` `admin` `disputes`
-
-**Tasks**:
-- [ ] `/admin/disputes` — dispute queue sorted by severity
-- [ ] `/admin/disputes/[id]` — full dispute view:
-  - Before/after image comparison slider
-  - Contract terms panel
-  - Communication timeline
-  - Risk score at time of rental
-  - CV damage analysis result (if available)
-- [ ] Resolution form: select outcome, enter notes, confirm
-- [ ] Auto-applies trust score impacts on resolution
-
----
-
-### Issue #41 — Admin Auth & Role Management
-
-**Platform**: Next.js  
-**Labels**: `nextjs` `admin` `auth`
+**Description**:  
+Admins are identified by a custom JWT claim (`role: admin`) set via a Supabase Auth hook.
 
 **Roles**:
 | Role | Access |
 |---|---|
 | `super_admin` | Full access |
-| `support_agent` | Disputes, read users |
-| `cnic_reviewer` | CNIC queue only |
+| `support_agent` | Disputes + read users |
+| `cnic_reviewer` | CNIC upload queue only |
 
 **Tasks**:
-- [ ] Separate admin login at `/admin/login`
-- [ ] 2FA with TOTP (authenticator app)
-- [ ] Role-based route protection middleware
-- [ ] Admin activity log (who did what + timestamp)
+- [ ] Set custom claim via Supabase Auth hook (`auth.users` → JWT metadata)
+- [ ] Write RLS policies that check `auth.jwt() ->> 'role' = 'admin'`
+- [ ] Next.js middleware: protect all `/admin/*` routes, check JWT role claim
+- [ ] Admin login at `/admin/login` (separate from user login — service role or magic link)
+- [ ] Activity log: every admin action writes to `admin_audit_log` table
+
+---
+
+### Issue #41 — Admin Dashboard
+
+**Platform**: Next.js  
+**Labels**: `nextjs` `admin`
+
+**Tasks**:
+- [ ] `/admin` — dashboard with metric cards:
+  - Total users / new this week
+  - Active rentals / overdue rentals
+  - Open disputes / resolved this week
+  - High-risk transactions flagged
+- [ ] Charts using `recharts`: user signups (7d), rental volume (30d), dispute rate (30d)
+- [ ] Query metrics using Supabase Server Components (no client-side fetching for admin data)
+
+---
+
+### Issue #42 — Admin User Management
+
+**Platform**: Next.js  
+**Labels**: `nextjs` `admin`
+
+**Tasks**:
+- [ ] `/admin/users` — paginated user table with search (full-text on name/email)
+- [ ] `/admin/users/[id]` — user detail: profile, trust score chart (from `trust_events`), rental history, active disputes
+- [ ] Admin actions: suspend account (set `users.status = 'suspended'`), manually verify CNIC, override trust score
+- [ ] CNIC review queue `/admin/cnic-queue` — view uploaded images from Storage, approve or reject
+
+---
+
+### Issue #43 — Admin Dispute Review Panel
+
+**Platform**: Next.js  
+**Labels**: `nextjs` `admin` `disputes`
+
+**Tasks**:
+- [ ] `/admin/disputes` — dispute queue sorted by date, filtered by status
+- [ ] `/admin/disputes/[id]` — full dispute review:
+  - `ImageCompareSlider` — before vs. after evidence
+  - Contract terms panel (from `contracts.terms_json`)
+  - Rental timeline (from `rental_events`)
+  - Risk score at time of transaction (from `rental_requests.risk_json`)
+  - CV damage analysis result (if available)
+- [ ] Resolution form: select outcome → enter notes → submit → auto-applies trust events + deposit update
+- [ ] Both parties notified via notification system on resolution
 
 ---
 
@@ -1018,23 +1139,24 @@ requested
 
 ## 🤖 Milestone 13 — (Optional) Computer Vision — Damage Detection
 
-> **Goal**: Automated image comparison to assist dispute reviewers in detecting visual damage. Stretch goal — implement only after all other milestones.
+> **Goal**: A standalone Python service that compares before/after evidence images to assist dispute resolution. Stretch goal — only implement after all other milestones are complete.
 
 ---
 
-### Issue #42 — Python CV Microservice
+### Issue #44 — Python CV Microservice
 
-**Platform**: Backend (separate Python service)  
+**Platform**: Python (FastAPI)  
 **Labels**: `python` `computer-vision` `optional`
 
 **Tasks**:
-- [ ] Set up FastAPI microservice (`/cv-service`)
-- [ ] `POST /analyze` — accepts two image URLs, returns `{ damage_score: 0.72, regions: [...] }`
-- [ ] Use OpenCV SSIM for pixel-level diff as baseline
-- [ ] Optional upgrade: pre-trained object detection model (YOLOv8 or EfficientDet) for specific damage categories
-- [ ] Containerize with Docker for easy deployment
-- [ ] Integrate with Node.js backend via internal HTTP call
-- [ ] Store results in `evidence_analysis` table
+- [ ] Set up FastAPI service with `/analyze` endpoint
+- [ ] Accept `{ pre_image_url, post_image_url }` — download from Supabase Storage signed URLs
+- [ ] OpenCV SSIM comparison as baseline → return `damage_score` (0.0–1.0) + diff image
+- [ ] Optional: YOLOv8 or EfficientDet fine-tuned on damaged vs. undamaged items
+- [ ] Containerize with Docker (`Dockerfile` + `docker-compose.yml`)
+- [ ] Supabase Edge Function calls this service via HTTP after post-rental evidence upload
+- [ ] Store result in `evidence_analysis` table (rental_id, damage_score, diff_image_url, model_version)
+- [ ] Add "AI-assisted — for reference only, not a legal determination" disclaimer everywhere results appear
 
 ---
 
@@ -1042,83 +1164,87 @@ requested
 
 ## 🧪 Milestone 14 — Testing, QA & Documentation
 
-> **Goal**: Ensure the full system is reliable, tested, and documented for FYP submission and presentation.
+> **Goal**: Reliable, tested, and fully documented system for FYP submission and panel presentation.
 
 ---
 
-### Issue #43 — Backend Tests
+### Issue #45 — Supabase Edge Function Tests
 
-**Platform**: Backend  
-**Labels**: `testing` `backend`
+**Platform**: Supabase (Deno)  
+**Labels**: `testing` `supabase`
 
 **Tasks**:
-- [ ] Unit tests for `TrustScoreService` — all 11 event types
-- [ ] Unit tests for `RiskScoringEngine` — all factor combinations
-- [ ] Unit tests for `DepositCalculatorService`
-- [ ] Unit tests for `RentalStateMachine` — all valid and invalid transitions
-- [ ] Integration tests for all REST endpoints (use Supertest + Jest)
-- [ ] Target: ≥ 70% code coverage
-- [ ] Set up GitHub Actions CI to run tests on every PR
+- [ ] `trust-event` unit tests: all 12 event types, clamping at 0 and 100
+- [ ] `risk-score` unit tests: all factor combinations, all threshold outcomes
+- [ ] `deposit-calc` unit tests: all tier × risk level combinations (9 cases)
+- [ ] `contract-gen` unit tests: contract JSON structure validation
+- [ ] `return-monitor` unit tests: mock rental states + date assertions
+- [ ] Use Deno test runner (`deno test`) and `supabase functions serve` for local testing
 
 ---
 
-### Issue #44 — Flutter Tests
+### Issue #46 — Flutter Tests
 
 **Platform**: Flutter  
 **Labels**: `testing` `flutter`
 
 **Tasks**:
-- [ ] Widget tests for `RiskBadge`, `TrustScoreGauge`, `AppButton`, `RiskAnalysisScreen`
-- [ ] Integration test: full rental request flow (create request → see risk → confirm)
-- [ ] Integration test: evidence upload flow
-- [ ] Run on Android emulator in CI
+- [ ] Widget tests: `RiskBadge`, `TrustScoreGauge`, `AppButton`, `StatusChip`
+- [ ] Widget test: `RiskAnalysisScreen` renders correct color and label for each risk level
+- [ ] Integration test: full rental request flow (select item → pick dates → see risk → confirm)
+- [ ] Integration test: evidence upload flow (pick images → compress → upload → see gallery)
+- [ ] Run on Android emulator in GitHub Actions CI
 
 ---
 
-### Issue #45 — Next.js Tests
+### Issue #47 — Next.js Tests
 
 **Platform**: Next.js  
 **Labels**: `testing` `nextjs`
 
 **Tasks**:
-- [ ] Component tests for `RiskScoreCard`, `ContractViewer`, `EvidenceCompare`
-- [ ] E2E tests with Playwright:
-  - Register → verify → browse items → request rental → risk screen → sign contract
+- [ ] Component tests (Vitest + Testing Library): `RiskScoreCard`, `ContractViewer`, `ImageCompareSlider`
+- [ ] Playwright E2E:
+  - Register → verify email → browse items → request rental → risk screen → sign contract
   - File dispute → admin resolves → trust score updated
-- [ ] Lighthouse audit: score ≥ 90 on performance and accessibility
+- [ ] Lighthouse audit: ≥ 90 performance, ≥ 90 accessibility on main pages
 
 ---
 
-### Issue #46 — FYP Documentation
+### Issue #48 — FYP Documentation
 
 **Platform**: All  
 **Labels**: `documentation`
 
 **Tasks**:
-- [ ] `docs/architecture.md` — system architecture diagram + explanation
-- [ ] `docs/trust-score.md` — full scoring model with examples
-- [ ] `docs/risk-engine.md` — risk algorithm, factors, thresholds, rationale
-- [ ] `docs/deposit-system.md` — formula, examples, deposit states
-- [ ] `docs/api-reference.md` — all endpoints with request/response examples
-- [ ] `docs/database-schema.md` — ER diagram + table definitions
-- [ ] `docs/flutter-screens.md` — annotated screen list
-- [ ] FYP report outline (Chapter 1–6 structure)
-- [ ] Demo walkthrough script
+- [ ] `docs/architecture.md` — architecture diagram + layer-by-layer explanation
+- [ ] `docs/trust-score.md` — full scoring model with worked examples
+- [ ] `docs/risk-engine.md` — algorithm, factors, thresholds, rationale
+- [ ] `docs/deposit-system.md` — formula with examples for all 9 combinations
+- [ ] `docs/rls-policies.md` — all Row Level Security policies explained
+- [ ] `docs/rental-state-machine.md` — state diagram + valid transitions
+- [ ] `docs/edge-functions.md` — all Edge Functions: inputs, outputs, side effects
+- [ ] `docs/flutter-screens.md` — annotated screen list with navigation map
+- [ ] FYP report chapter structure outline
+- [ ] Demo walkthrough script for panel presentation
 
 ---
 
-### Issue #47 — Seed Data & Demo Setup
+### Issue #49 — Seed Data & Demo Setup
 
-**Platform**: All  
+**Platform**: Supabase  
 **Labels**: `demo`
 
 **Tasks**:
-- [ ] Seed 10+ users with varied trust scores (new, established, suspended)
-- [ ] Seed 20+ items across all 3 risk tiers
-- [ ] Seed 5+ completed rentals with full trust event history
-- [ ] Seed 2 open disputes with before/after evidence
-- [ ] Seed 1 high-risk blocked transaction example
-- [ ] Create admin account with `super_admin` role
+- [ ] Write `supabase/seed.sql` with:
+  - 10+ users with varied trust scores (new user, 3 rentals, suspended, perfect score)
+  - 20+ items across all 3 risk tiers
+  - 5+ completed rentals with full `trust_events` history
+  - 2 open disputes with pre/post evidence metadata
+  - 1 example of a blocked high-risk transaction (with risk JSON)
+  - 1 `super_admin` user
+- [ ] Run `supabase db seed` to populate dev database
+- [ ] Upload sample evidence images to Storage buckets via seed script
 - [ ] Document setup in `docs/demo-setup.md`
 
 ---
@@ -1127,17 +1253,17 @@ requested
 
 | Milestone | Issues | Core Deliverable | Platforms |
 |---|---|---|---|
-| M1 | #1–5 | Foundation, DB, Flutter init, Next.js init | All |
-| M2 | #6–7 | Design system, component library | Flutter + Next.js |
-| M3 | #8–11 | Auth, OTP, CNIC, profiles | All |
-| M4 | #12–14 | Item listings, browse, search | All |
-| **M5** | **#15–18** | **Risk engine + Trust engine ← FYP core** | **Backend + Both** |
-| M6 | #19–20 | Dynamic deposits | All |
-| M7 | #21–23 | Digital contracts + signing | All |
-| M8 | #24–27 | Evidence upload + optional CV | All |
-| M9 | #28–31 | Rental lifecycle + return monitoring | All |
-| M10 | #32–34 | Dispute system | All |
-| M11 | #35–37 | Notifications (push, email, in-app) | All |
-| M12 | #38–41 | Admin panel | Next.js only |
-| M13 | #42 | CV damage detection (optional) | Backend |
-| M14 | #43–47 | Testing, QA, docs, seed data | All |
+| M1 | #1–6 | Monorepo, Supabase init, DB schema, RLS, Flutter init, Next.js init | All |
+| M2 | #7–8 | Design system, component library | Flutter + Next.js |
+| M3 | #9–12 | Supabase Auth, OTP, CNIC, profiles | All |
+| M4 | #13–15 | Item listings, browse, search | All |
+| **M5** | **#16–19** | **Risk engine + Trust engine (Edge Functions) ← FYP core** | **Supabase + Both** |
+| M6 | #20–21 | Dynamic deposits (Edge Function + UI) | All |
+| M7 | #22–24 | Digital contracts + immutable signing | All |
+| M8 | #25–28 | Evidence storage + optional CV | All |
+| M9 | #29–32 | State machine + pg_cron return monitoring | All |
+| M10 | #33–35 | Dispute system | All |
+| M11 | #36–39 | Realtime notifications + FCM push + email | All |
+| M12 | #40–43 | Admin panel + CNIC queue + dispute review | Next.js only |
+| M13 | #44 | CV damage detection (optional Python service) | Python |
+| M14 | #45–49 | Testing, QA, docs, seed data | All |
