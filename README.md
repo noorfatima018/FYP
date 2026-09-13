@@ -284,7 +284,9 @@ RentWise/
 
 ## 👥 Team
 
-> Add your team members here.
+> Noor Fatima
+> Areeba Arif
+> Imtishal Abid
 
 ---
 
