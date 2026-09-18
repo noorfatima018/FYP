@@ -1,0 +1,49 @@
+@import "tailwindcss";
+
+:root {
+  --navy-primary: #0C2340;
+  --navy-dark: #071527;
+  --navy-light: #16365C;
+  --brown-accent: #8B5E3C;
+  --brown-hover: #724B2E;
+  --cream-bg: #F5ECE1;
+  --cream-card: #FAF4ED;
+  --sage-muted: #D5D8CB;
+  --sage-border: #C5C9BA;
+  
+  --background: #FAF4ED;
+  --foreground: #0C2340;
+}
+
+@theme inline {
+  --color-navy: #0C2340;
+  --color-navy-dark: #071527;
+  --color-navy-light: #16365C;
+  --color-brown: #8B5E3C;
+  --color-brown-hover: #724B2E;
+  --color-cream: #F5ECE1;
+  --color-cream-card: #FAF4ED;
+  --color-sage: #D5D8CB;
+  --color-sage-border: #C5C9BA;
+}
+
+body {
+  background-color: var(--cream-bg);
+  color: var(--navy-primary);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  min-height: 100vh;
+}
+
+.custom-shadow {
+  box-shadow: 0 20px 40px -15px rgba(12, 35, 64, 0.15), 0 0 20px -5px rgba(139, 94, 60, 0.1);
+}
+
+.custom-border-accent {
+  border-color: #8B5E3C;
+}
+
+.input-focus:focus {
+  outline: none;
+  border-color: #8B5E3C;
+  box-shadow: 0 0 0 3px rgba(139, 94, 60, 0.2);
+}

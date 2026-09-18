@@ -1,5 +1,9 @@
 # 🛡️ RentWise — AI Based Risk-Aware Peer-to-Peer Rental Management Platform
 
+<p align="center">
+  <img src="logo.png" alt="RentWise Logo" width="220" />
+</p>
+
 > **Department of Computer Science — Faculty of Computing & IT — University of Gujrat**  
 > *Final Year Project Proposal & Development Documentation*
 
