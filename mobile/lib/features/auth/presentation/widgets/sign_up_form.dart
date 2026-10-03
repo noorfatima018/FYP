@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
+import '../../../../routes/app_routes.dart';
 import '../providers/auth_provider.dart';
 
 class SignUpForm extends ConsumerStatefulWidget {
@@ -33,13 +34,21 @@ class _SignUpFormState extends ConsumerState<SignUpForm> {
     super.dispose();
   }
 
-  void _handleSignUp() {
+  Future<void> _handleSignUp() async {
     FocusScope.of(context).unfocus();
-    ref.read(authProvider.notifier).signUp(
+    final success = await ref.read(authProvider.notifier).signUp(
           _emailController.text.trim(),
           _passwordController.text,
           _confirmPasswordController.text,
         );
+
+    if (success && mounted) {
+      Future.delayed(const Duration(milliseconds: 600), () {
+        if (mounted) {
+          Navigator.of(context).pushReplacementNamed(AppRoutes.roleSelection);
+        }
+      });
+    }
   }
 
   @override

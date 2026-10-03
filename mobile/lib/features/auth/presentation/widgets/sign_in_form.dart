@@ -4,6 +4,7 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
+import '../../../../routes/app_routes.dart';
 import '../providers/auth_provider.dart';
 
 class SignInForm extends ConsumerStatefulWidget {
@@ -31,12 +32,20 @@ class _SignInFormState extends ConsumerState<SignInForm> {
     super.dispose();
   }
 
-  void _handleSignIn() {
+  Future<void> _handleSignIn() async {
     FocusScope.of(context).unfocus();
-    ref.read(authProvider.notifier).signIn(
+    final success = await ref.read(authProvider.notifier).signIn(
           _emailController.text.trim(),
           _passwordController.text,
         );
+
+    if (success && mounted) {
+      Future.delayed(const Duration(milliseconds: 600), () {
+        if (mounted) {
+          Navigator.of(context).pushReplacementNamed(AppRoutes.roleSelection);
+        }
+      });
+    }
   }
 
   @override
